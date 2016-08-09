@@ -1,214 +1,142 @@
-/**
- * @module  ecs
- */
-
-import { UIDGenerator, DefaultUIDGenerator } from './uid';
+import { DefaultUIDGenerator } from './uid';
 import { fastSplice } from './utils';
 
 /**
  * An entity.
  *
- * @class  Entity
+ * @class
+ * @alias ECS.Entity
  */
-class Entity {
-  /**
-   * @class Entity
-   * @constructor
-   *
-   * @param  {Number|UIDGenerator} [idOrUidGenerator=null] The entity id if
-   * a Number is passed. If an UIDGenerator is passed, the entity will use
-   * it to generate a new id. If nothing is passed, the entity will use
-   * the default UIDGenerator.
-   *
-   * @param {Array[Component]} [components=[]] An array of initial components.
-   */
-  constructor(idOrUidGenerator, components = []) {
+export default class Entity {
     /**
-     * Unique identifier of the entity.
      *
-     * @property {Number} id
+     * @param {Component[]} components - An array of initial components.
+     * @param {number|UIDGenerator} idOrGenerator - The entity id if
+     *  a Number is passed. If an UIDGenerator is passed, the entity will use
+     *  it to generate a new id. If nothing is passed, the entity will use
+     *  the default UIDGenerator.
      */
-    this.id = null;
+    constructor(components = [], idOrGenerator = DefaultUIDGenerator) {
+        /**
+         * Unique identifier of the entity.
+         *
+         * @member {number}
+         */
+        this.id = typeof idOrGenerator === 'number' ? idOrGenerator : idOrGenerator.next();
 
-    // initialize id depending on what is the first argument
-    if (typeof idOrUidGenerator === 'number') {
-      // if a number was passed then simply set it as id
-      this.id = idOrUidGenerator;
-    } else if (idOrUidGenerator instanceof UIDGenerator) {
-      // if an instance of UIDGenerator was passed then use it to generate
-      // the id. This allow the user to use multiple UID generators and
-      // therefore to create entities with unique ids accross a cluster
-      // or an async environment. See uid.js for more details
-      this.id = idOrUidGenerator.next();
-    } else {
-      // if nothing was passed simply use the default generator
-      this.id = DefaultUIDGenerator.next();
+        /**
+         * Systems applied to the entity.
+         *
+         * @number {System[]}
+         */
+        this.systems = [];
+
+        /**
+         * Indicate a change in components (a component was removed or added)
+         * which require to re-compute entity eligibility to all systems.
+         *
+         * @member {boolean}
+         */
+        this.systemsDirty = false;
+
+        /**
+         * A reference to parent ECS class.
+         *
+         * @member {ECS}
+         */
+        this.ecs = null;
+
+        // components initialisation
+        for (let i = 0; i < components.length; ++i) {
+            const component = components[i];
+
+            this[component.name] = component.data();
+        }
     }
 
     /**
-     * Systems applied to the entity.
+     * Set the systems dirty flag so the ECS knows this entity needs
+     * to recompute eligibility at the beginning of next tick.
      *
-     * @property {Array[System]} systems
      */
-    this.systems = [];
+    setSystemsDirty() {
+        if (!this.systemsDirty && this.ecs) {
+            this.systemsDirty = true;
+
+            // notify to parent ECS that this entity needs to be tested next tick
+            this.ecs.entitiesSystemsDirty.push(this);
+        }
+    }
 
     /**
-     * Indiquate a change in components (a component was removed or added)
-     * which require to re-compute entity eligibility to all systems.
+     * Add a component to the entity.
      *
-     * @property {Boolean} systemsDirty
+     * @param {IComponent} component - The component to add.
      */
-    this.systemsDirty = false;
+    addComponent(component) {
+        this[component.name] = component.data();
+        this.setSystemsDirty();
+    }
 
     /**
-     * Components of the entity stored as key-value pairs.
+     * Remove a component from the entity. For performance reasons, we
+     * set the component property to `null`. Therefore the property is
+     * still enumerable after a call to `removeComponent()`.
      *
-     * @property {Object} components
+     * @param {IComponent} component - The component or name to remove.
      */
-    this.components = {};
+    removeComponent(component) {
+        if (!this[component.name]) {
+            return;
+        }
 
-    // components initialisation
-    for (let i = 0, component; component = components[i]; i += 1) {
-      // if a getDefaults method is provided, use it. First because let the
-      // runtime allocate the component is way more faster than using a copy
-      // function. Secondly because the user may want to provide some kind
-      // of logic in components initialisation ALTHOUGH these kind of
-      // initialisation should be done in enter() handler
-      if (component.getDefaults) {
-        this.components[component.name] = component.getDefaults();
-      } else {
-        this.components[component.name] = Object.assign({},
-          components[i].defaults);
-      }
+        this[component.name] = null;
+        this.setSystemsDirty();
     }
 
     /**
-     * A reference to parent ECS class.
-     * @property {ECS} ecs
+     * Dispose the entity.
+     *
+     * @private
      */
-    this.ecs = null;
-  }
-  /**
-   * Set the parent ecs reference.
-   *
-   * @private
-   * @param {ECS} ecs An ECS class instance.
-   */
-  addToECS(ecs) {
-    this.ecs = ecs;
-    this.setSystemsDirty();
-  }
-  /**
-   * Set the systems dirty flag so the ECS knows this entity
-   * needs to recompute eligibility at the beginning of next
-   * tick.
-   */
-  setSystemsDirty() {
-    if (!this.systemsDirty && this.ecs) {
-      this.systemsDirty = true;
-
-      // notify to parent ECS that this entity needs to be tested next tick
-      this.ecs.entitiesSystemsDirty.push(this);
-    }
-  }
-  /**
-   * Add a system to the entity.
-   *
-   * @private
-   * @param {System} system The system to add.
-   */
-  addSystem(system) {
-    this.systems.push(system);
-  }
-  /**
-   * Remove a system from the entity.
-   *
-   * @private
-   * @param  {System} system The system reference to remove.
-   */
-  removeSystem(system) {
-    let index = this.systems.indexOf(system);
-
-    if (index !== -1) {
-      fastSplice(this.systems, index, 1);
-    }
-  }
-  /**
-   * Add a component to the entity. WARNING this method does not copy
-   * components data but assign directly the reference for maximum
-   * performances. Be sure not to pass the same component reference to
-   * many entities.
-   *
-   * @param {String} name Attribute name of the component to add.
-   * @param {Object} data Component data.
-   */
-  addComponent(name, data) {
-    this.components[name] = data || {};
-    this.setSystemsDirty();
-  }
-  /**
-   * Remove a component from the entity. To preserve performances, we
-   * simple set the component property to `undefined`. Therefore the
-   * property is still enumerable after a call to removeComponent()
-   *
-   * @param  {String} name Name of the component to remove.
-   */
-  removeComponent(name) {
-    if (!this.components[name]) {
-      return;
+    dispose() {
+        while (this.systems.length) {
+            this.systems[this.systems.length - 1].removeEntity(this);
+        }
     }
 
-    this.components[name] = undefined;
-    this.setSystemsDirty();
-  }
-  /**
-   * Update a component field by field, NOT recursively. If the component
-   * does not exists, this method create it silently.
-   *
-   * @method updateComponent
-   * @param  {String} name Name of the component
-   * @param  {Object} data Dict of attributes to update
-   * @example
-   *   entity.addComponent('kite', {vel: 0, pos: {x: 1}});
-   *   // entity.component.pos is '{vel: 0, pos: {x: 1}}'
-   *   entity.updateComponent('kite', {angle: 90, pos: {y: 1}});
-   *   // entity.component.pos is '{vel: 0, angle: 90, pos: {y: 1}}'
-   */
-  updateComponent(name, data) {
-    let component = this.components[name];
-
-    if (!component) {
-      this.addComponent(name, data);
-    } else {
-      let keys = Object.keys(data);
-
-      for (let i = 0, key; key = keys[i]; i += 1) {
-        component[key] = data[key];
-      }
+    /**
+     * Set the parent ecs reference.
+     *
+     * @private
+     * @param {ECS} ecs - An ECS class instance.
+     */
+    _addToECS(ecs) {
+        this.ecs = ecs;
+        this.setSystemsDirty();
     }
-  }
-  /**
-   * Update a set of components.
-   *
-   * @param  {Object} componentsData Dict of components to update.
-   */
-  updateComponents(componentsData) {
-    let components = Object.keys(componentsData);
 
-    for (let i = 0, component; component = components[i]; i += 1) {
-      this.updateComponent(component, componentsData[component]);
+    /**
+     * Add a system to the entity.
+     *
+     * @private
+     * @param {System} system - The system to add.
+     */
+    _addSystem(system) {
+        this.systems.push(system);
     }
-  }
-  /**
-   * Dispose the entity.
-   *
-   * @private
-   */
-  dispose() {
-    for (var i = 0, system; system = this.systems[0]; i += 1) {
-      system.removeEntity(this);
+
+    /**
+     * Remove a system from the entity.
+     *
+     * @private
+     * @param {System} system - The system reference to remove.
+     */
+    _removeSystem(system) {
+        const index = this.systems.indexOf(system);
+
+        if (index !== -1) {
+            fastSplice(this.systems, index, 1);
+        }
     }
-  }
 }
-
-export default Entity;

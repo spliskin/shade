@@ -3,8 +3,8 @@ import System from '../../src/system';
 
 function getFakeEntity() {
   return {
-    addSystem: sinon.spy(),
-    removeSystem: sinon.spy()
+    _addSystem: sinon.spy(),
+    _removeSystem: sinon.spy()
   };
 }
 
@@ -31,7 +31,7 @@ describe('System', () => {
     it('should add the system to entity systems', () => {
       system.addEntity(entity);
 
-      expect(entity.addSystem.calledWith(system)).to.be.equal(true);
+      expect(entity._addSystem.calledWith(system)).to.be.equal(true);
     });
 
     it('should call enter() on added entity', () => {
@@ -62,7 +62,7 @@ describe('System', () => {
     it('should remove the system from entity systems', () => {
       system.removeEntity(entity);
 
-      expect(entity.removeSystem.calledWith(system)).to.be.equal(true);
+      expect(entity._removeSystem.calledWith(system)).to.be.equal(true);
     });
 
     it('should call exit() on removed entity', () => {

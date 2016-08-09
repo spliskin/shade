@@ -1,38 +1,20 @@
 {
-  "name": "yagl-ecs",
+  "name": "@fae/ecs",
   "version": "1.0.0",
-  "author": "Pierre Beaujeu",
-  "description": "Entity Component System for ES6",
+  "description": "Entity Component System used in the Fae rendering engine",
+  "author": "Chad Engler <chad@pantherdev.com>",
+  "licence": "MIT",
   "main": "dist/ecs.js",
-  "scripts": {
-    "test": "gulp test",
-    "prepublish": "gulp build"
-  },
-  "devDependencies": {
-    "babel": "^5.1.11",
-    "chai": "^2.2.0",
-    "del": "^1.1.1",
-    "gulp": "^3.8.11",
-    "gulp-babel": "^5.1.0",
-    "gulp-istanbul": "^0.8.1",
-    "gulp-jshint": "^1.10.0",
-    "gulp-load-plugins": "^0.10.0",
-    "gulp-mocha": "^2.0.1",
-    "gulp-notify": "^2.2.0",
-    "gulp-watch": "^4.2.4",
-    "isparta": "^3.0.3",
-    "jshint-stylish": "^1.0.1",
-    "lolex": "^1.3.1",
-    "mocha": "^2.2.4",
-    "sinon": "^1.16.1",
-    "xunit-file": "0.0.6"
-  },
-  "engines": {
-    "node": ">=0.10.0"
-  },
+  "contributors": [
+    "Pierre Beaujeu"
+  ],
+  "homepage": "https://github.com/Fae/ecs#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yagl/ecs.git"
+    "url": "git+https://github.com/Fae/ecs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Fae/ecs/issues"
   },
   "keywords": [
     "game",
@@ -41,5 +23,31 @@
     "entity component system",
     "design pattern"
   ],
-  "licence": "MIT"
+  "directories": {
+    "lib": "./src"
+  },
+  "files": [
+    "src/",
+    "dist/"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist/",
+    "build": "webpack -p --config webpack.config.js --output-filename ecs.min.js --progress",
+    "dev": "webpack -d --config webpack.config.js --output-filename ecs.js --progress --colors",
+    "watch": "npm run dev -- --watch",
+    "lint": "eslint src/ plugins/ test/",
+    "start": "npm run build",
+    "test": "npm run lint && npm run dev && npm run test-dev -- --single-run",
+    "test-ci": "npm run test-dev -- --single-run",
+    "test-dev": "karma start build/karma.conf.js"
+  },
+  "devDependencies": {
+    "@englercj/code-style": "^1.0.6",
+    "babel-core": "^6.13.2",
+    "babel-loader": "^6.2.4",
+    "babel-preset-es2015": "^6.13.2",
+    "babel-preset-es2015-loose": "^7.0.0",
+    "eslint": "^3.2.2",
+    "webpack": "^1.13.1"
+  }
 }

@@ -1,9 +1,3 @@
-/**
- * Entity Component System module
- *
- * @module ecs
- */
-
 import Entity from './entity';
 import System from './system';
 import performance from './performance';
@@ -11,220 +5,258 @@ import uid from './uid';
 import { fastSplice } from './utils';
 
 /**
- * @class  ECS
+ *
+ * @class
  */
-class ECS {
-  /**
-   * @constructor
-   * @class  ECS
-   */
-  constructor() {
+export default class ECS {
     /**
-     * Store all entities of the ECS.
      *
-     * @property entities
-     * @type {Array}
      */
-    this.entities = [];
+    constructor() {
+        /**
+         * Store all entities of the ECS.
+         *
+         * @member {Entity[]}
+         */
+        this.entities = [];
+
+        /**
+         * Store entities which need to be tested at beginning of next tick.
+         *
+         * @member {Entity[]}
+         */
+        this.entitiesSystemsDirty = [];
+
+        /**
+         * Store all systems of the ECS.
+         *
+         * @member {System[]}
+         */
+        this.systems = [];
+
+        /**
+         * Count how many updates have been done.
+         *
+         * @member {number}
+         */
+        this.updateCounter = 0;
+
+        /**
+         * The last timestamp of an update call.
+         *
+         * @member
+         */
+        this.lastUpdate = performance.now();
+    }
 
     /**
-     * Store entities which need to be tested at beginning of next tick.
+     * Retrieve an entity by id.
      *
-     * @property entitiesSystemsDirty
-     * @type {Array}
+     * @param {number} id - id of the entity to retrieve
+     * @return {Entity} The entity if found null otherwise
      */
-    this.entitiesSystemsDirty = [];
+    getEntityById(id) {
+        for (let i = 0; i < this.entities.length; ++i) {
+            const entity = this.entities[i];
 
-    /**
-     * Store all systems of the ECS.
-     *
-     * @property systems
-     * @type {Array}
-     */
-    this.systems = [];
-
-    /**
-     * Count how many updates have been done.
-     *
-     * @property updateCounter
-     * @type {Number}
-     */
-    this.updateCounter = 0;
-
-    this.lastUpdate = performance.now();
-  }
-  /**
-   * Retrieve an entity by id
-   * @param  {Number} id id of the entity to retrieve
-   * @return {Entity} The entity if found null otherwise
-   */
-  getEntityById(id) {
-    for (let i = 0, entity; entity = this.entities[i]; i += 1) {
-      if (entity.id === id) {
-        return entity;
-      }
-    }
-
-    return null;
-  }
-  /**
-   * Add an entity to the ecs.
-   *
-   * @method addEntity
-   * @param {Entity} entity The entity to add.
-   */
-  addEntity(entity) {
-    this.entities.push(entity);
-    entity.addToECS(this);
-  }
-  /**
-   * Remove an entity from the ecs by reference.
-   *
-   * @method removeEntity
-   * @param  {Entity} entity reference of the entity to remove
-   * @return {Entity}        the remove entity if any
-   */
-  removeEntity(entity) {
-    let index = this.entities.indexOf(entity);
-    let entityRemoved = null;
-
-    // if the entity is not found do nothing
-    if (index !== -1) {
-      entityRemoved = this.entities[index];
-
-      entity.dispose();
-      this.removeEntityIfDirty(entityRemoved);
-
-      fastSplice(this.entities, index, 1);
-    }
-
-    return entityRemoved;
-  }
-  /**
-   * Remove an entity from the ecs by entity id.
-   *
-   * @method removeEntityById
-   * @param  {Entity} entityId id of the entity to remove
-   * @return {Entity}          removed entity if any
-   */
-  removeEntityById(entityId) {
-    for (let i = 0, entity; entity = this.entities[i]; i += 1) {
-      if (entity.id === entityId) {
-        entity.dispose();
-        this.removeEntityIfDirty(entity);
-
-        fastSplice(this.entities, i, 1);
-
-        return entity;
-      }
-    }
-  }
-  /**
-   * Remove an entity from dirty entities by reference.
-   *
-   * @private
-   * @method removeEntityIfDirty
-   * @param  {[type]} entity entity to remove
-   */
-  removeEntityIfDirty(entity) {
-    let index = this.entitiesSystemsDirty.indexOf(entity);
-
-    if (index !== -1) {
-      fastSplice(this.entities, index, 1);
-    }
-  }
-  /**
-   * Add a system to the ecs.
-   *
-   * @method addSystem
-   * @param {System} system system to add
-   */
-  addSystem(system) {
-    this.systems.push(system);
-
-    // iterate over all entities to eventually add system
-    for (let i = 0, entity; entity = this.entities[i]; i += 1) {
-      if (system.test(entity)) {
-        system.addEntity(entity);
-      }
-    }
-  }
-  /**
-   * Remove a system from the ecs.
-   *
-   * @method removeSystem
-   * @param  {System} system system reference
-   */
-  removeSystem(system) {
-    let index = this.systems.indexOf(system);
-
-    if (index !== -1) {
-      fastSplice(this.systems, index, 1);
-      system.dispose();
-    }
-  }
-  /**
-   * "Clean" entities flagged as dirty by removing unecessary systems and
-   * adding missing systems.
-   *
-   * @private
-   * @method cleanDirtyEntities
-   */
-  cleanDirtyEntities() {
-    // jshint maxdepth: 4
-
-    for (let i = 0, entity; entity = this.entitiesSystemsDirty[i]; i += 1) {
-      for (let s = 0, system; system = this.systems[s]; s += 1) {
-        // for each dirty entity for each system
-        let index = entity.systems.indexOf(system);
-        let entityTest = system.test(entity);
-
-        if (index === -1 && entityTest) {
-          // if the entity is not added to the system yet and should be, add it
-          system.addEntity(entity);
-        } else if (index !== -1 && !entityTest) {
-          // if the entity is added to the system but should not be, remove it
-          system.removeEntity(entity);
+            if (entity.id === id) {
+                return entity;
+            }
         }
-        // else we do nothing the current state is OK
-      }
 
-      entity.systemsDirty = false;
-    }
-    // jshint maxdepth: 3
-
-    this.entitiesSystemsDirty = [];
-  }
-  /**
-   * Update the ecs.
-   *
-   * @method update
-   */
-  update() {
-    let now = performance.now();
-    let elapsed = now - this.lastUpdate;
-
-    for (let i = 0, system; system = this.systems[i]; i += 1) {
-      if (this.updateCounter % system.frequency > 0) {
-        break;
-      }
-
-      if (this.entitiesSystemsDirty.length) {
-        // if the last system flagged some entities as dirty check that case
-        this.cleanDirtyEntities();
-      }
-
-      system.updateAll(elapsed);
+        return null;
     }
 
-    this.updateCounter += 1;
-    this.lastUpdate = now;
-  }
+    /**
+     * Add an entity to the ecs.
+     *
+     * @param {Entity} entity - The entity to add.
+     */
+    addEntity(entity) {
+        this.entities.push(entity);
+        entity._addToECS(this);
+    }
+
+    /**
+     * Remove an entity from the ecs by reference.
+     *
+     * @param {Entity} entity - reference of the entity to remove
+     * @return {Entity} the remove entity if any
+     */
+    removeEntity(entity) {
+        const index = this.entities.indexOf(entity);
+        let entityRemoved = null;
+
+        // if the entity is not found do nothing
+        if (index !== -1) {
+            entityRemoved = this.entities[index];
+
+            entity.dispose();
+
+            this._removeEntityIfDirty(entityRemoved);
+
+            fastSplice(this.entities, index, 1);
+        }
+
+        return entityRemoved;
+    }
+
+    /**
+     * Remove an entity from the ecs by entity id.
+     *
+     * @param {Entity} id - id of the entity to remove
+     * @return {Entity} removed entity if any
+     */
+    removeEntityById(id) {
+        for (let i = 0; i < this.entities.length; ++i) {
+            const entity = this.entities[i];
+
+            if (entity.id === id) {
+                entity.dispose();
+
+                this._removeEntityIfDirty(entity);
+
+                fastSplice(this.entities, i, 1);
+
+                return entity;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Add a system to the ecs.
+     *
+     * @param {System} system - system to add
+     */
+    addSystem(system) {
+        this.systems.push(system);
+
+        // iterate over all entities to eventually add system
+        for (let i = 0; i < this.entities.length; ++i) {
+            const entity = this.entities[i];
+
+            if (system.test(entity)) {
+                system.addEntity(entity);
+            }
+        }
+    }
+
+    /**
+     * Remove a system from the ecs.
+     *
+     * @param {System} system system reference
+     */
+    removeSystem(system) {
+        const index = this.systems.indexOf(system);
+
+        if (index !== -1) {
+            fastSplice(this.systems, index, 1);
+            system.dispose();
+        }
+    }
+
+    /**
+     * Remove an entity from dirty entities by reference.
+     *
+     * @private
+     * @param {Entity} entity - entity to remove
+     */
+    _removeEntityIfDirty(entity) {
+        const index = this.entitiesSystemsDirty.indexOf(entity);
+
+        if (index !== -1) {
+            fastSplice(this.entitiesSystemsDirty, index, 1);
+        }
+    }
+
+    /**
+     * "Clean" entities flagged as dirty by removing unecessary
+     * systems and adding missing systems.
+     *
+     * @private
+     */
+    _cleanDirtyEntities() {
+        for (let i = 0; i < this.entitiesSystemsDirty.length; ++i) {
+            const entity = this.entitiesSystemsDirty[i];
+
+            for (let s = 0; s < this.systems.length; ++s) {
+                const system = this.systems[s];
+
+                // for each dirty entity for each system
+                const index = entity.systems.indexOf(system);
+                const entityTest = system.test(entity);
+
+                // if the entity is not added to the system yet and should be, add it
+                if (index === -1 && entityTest) {
+                    system.addEntity(entity);
+                }
+                // if the entity is added to the system but should not be, remove it
+                else if (index !== -1 && !entityTest) {
+                    system.removeEntity(entity);
+                }
+                // else we do nothing the current state is OK
+            }
+
+            entity.systemsDirty = false;
+        }
+
+        this.entitiesSystemsDirty.length = 0;
+    }
+
+    /**
+     * Update the ecs.
+     *
+     * @method update
+     */
+    update() {
+        const now = performance.now();
+        const elapsed = now - this.lastUpdate;
+
+        for (let i = 0; i < this.systems.length; ++i) {
+            const system = this.systems[i];
+
+            if (this.updateCounter % system.frequency > 0) {
+                break;
+            }
+
+            // if the last system flagged some entities as dirty check that case
+            if (this.entitiesSystemsDirty.length) {
+                this.cleanDirtyEntities();
+            }
+
+            system.updateAll(elapsed);
+        }
+
+        this.updateCounter += 1;
+        this.lastUpdate = now;
+    }
 }
 
-// expose user stuff
+// expose!
 ECS.Entity = Entity;
 ECS.System = System;
 ECS.uid = uid;
 
-export default ECS;
+/**
+ * An interface describing components.
+ *
+ * @interface IComponent
+ */
+
+/**
+ * The name of the component
+ *
+ * @property
+ * @name IComponent#name
+ * @type {string}
+ */
+
+/**
+ * The factory function for the data of this component.
+ *
+ * @function
+ * @name IComponent#data
+ * @returns {*} The data object for this component.
+ */

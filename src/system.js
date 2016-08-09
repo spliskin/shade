@@ -1,139 +1,134 @@
-/**
- * @module  ecs
- */
-
 import { fastSplice } from './utils';
 
-// forced to disable this check for abstract methods
-// jshint unused:false
 /**
- * @class  System
- *
- * @description  A system update all eligible entities at a given frequency.
+ * A system update all eligible entities at a given frequency.
  * This class is not meant to be used directly and should be sub-classed to
  * define specific logic.
+ *
+ * @class
+ * @alias ECS.System
  */
-class System {
-  /**
-   * @class  System
-   * @constructor
-   * @param [frequency=1] {Number} Frequency of execution.
-   */
-  constructor(frequency=1) {
+export default class System {
     /**
-     * Frequency of update execution, a frequency of `1` run the system every
-     * update, `2` will run the system every 2 updates, ect.
-     * @property {Number} frequency
-     */
-    this.frequency = frequency;
-
-    /**
-     * Entities of the system.
      *
-     * @property {Array[Entity]} entities
+     * @param {number} frequency Frequency of execution.
      */
-    this.entities = [];
-  }
-  /**
-   * Add an entity to the system entities.
-   *
-   * @param {Entity} entity The entity to add to the system.
-   */
-  addEntity(entity) {
-    entity.addSystem(this);
-    this.entities.push(entity);
+    constructor(frequency = 1) {
+        /**
+         * Frequency of update execution, a frequency of `1` run the system every
+         * update, `2` will run the system every 2 updates, ect.
+         *
+         * @member {number}
+         */
+        this.frequency = frequency;
 
-    this.enter(entity);
-  }
-  /**
-   * Remove an entity from the system entities. exit() handler is executed
-   * only if the entity actually exists in the system entities.
-   *
-   * @param  {Entity} entity Reference of the entity to remove.
-   */
-  removeEntity(entity) {
-    let index = this.entities.indexOf(entity);
-
-    if (index !== -1) {
-      entity.removeSystem(this);
-      fastSplice(this.entities, index, 1);
-
-      this.exit(entity);
-    }
-  }
-  /**
-   * Apply update to each entity of this system.
-   *
-   * @method  updateAll
-   */
-  updateAll(elapsed) {
-    this.preUpdate();
-
-    for (let i = 0, entity; entity = this.entities[i]; i += 1) {
-      this.update(entity, elapsed);
+        /**
+         * Entities of the system.
+         *
+         * @member {Entity[]}
+         */
+        this.entities = [];
     }
 
-    this.postUpdate();
-  }
-  /**
-   * dispose the system by exiting all the entities
-   *
-   * @method  dispose
-   */
-  dispose() {
-    for (let i = 0, entity; entity = this.entities[i]; i += 1) {
-      entity.removeSystem(this);
-      this.exit(entity);
+    /**
+     * Add an entity to the system entities.
+     *
+     * @param {Entity} entity - The entity to add to the system.
+     */
+    addEntity(entity) {
+        entity._addSystem(this);
+        this.entities.push(entity);
+
+        this.enter(entity);
     }
-  }
-  // methods to be extended by subclasses
-  /**
-   * Abstract method to subclass. Called once per update, before entities
-   * iteration.
-   *
-   * @method  preUpdate
-   */
-  preUpdate() {}
-  /**
-   * Abstract method to subclass. Called once per update, after entities
-   * iteration.
-   *
-   * @method  postUpdate
-   */
-  postUpdate() {}
-  /**
-   * Abstract method to subclass. Should return true if the entity is eligible
-   * to the system, false otherwise.
-   *
-   * @method  test
-   * @param  {Entity} entity The entity to test.
-   */
-  test(entity) {
-    return false;
-  }
-  /**
-   * Abstract method to subclass. Called when an entity is added to the system.
-   *
-   * @method  enter
-   * @param  {Entity} entity The added entity.
-   */
-  enter(entity) {}
-  /**
-   * Abstract method to subclass. Called when an entity is removed from the system.
-   *
-   * @method  exit
-   * @param  {Entity} entity The removed entity.
-   */
-  exit(entity) {}
-  /**
-   * Abstract method to subclass. Called for each entity to update. This is
-   * the only method that should actual mutate entity state.
-   *
-   * @method  update
-   * @param  {Entity} entity The entity to update.
-   */
-  update(entity) {}
+
+    /**
+     * Remove an entity from the system entities. exit() handler is executed
+     * only if the entity actually exists in the system entities.
+     *
+     * @param {Entity} entity - Reference of the entity to remove.
+     */
+    removeEntity(entity) {
+        const index = this.entities.indexOf(entity);
+
+        if (index !== -1) {
+            entity._removeSystem(this);
+            fastSplice(this.entities, index, 1);
+
+            this.exit(entity);
+        }
+    }
+
+    /**
+     * Apply update to each entity of this system.
+     *
+     * @param {number} elapsed - The time elapsed since last update call.
+     */
+    updateAll(elapsed) {
+        this.preUpdate();
+
+        for (let i = 0; i < this.entities.length; ++i) {
+            this.update(this.entities[i], elapsed);
+        }
+
+        this.postUpdate();
+    }
+
+    /**
+     * Dispose the system by exiting all the entities
+     *
+     */
+    dispose() {
+        for (let i = 0; i < this.entities.length; ++i) {
+            this.entities[i]._removeSystem(this);
+            this.exit(this.entities[i]);
+        }
+    }
+
+    /**
+     * Abstract method to subclass. Called once per update, before entities
+     * iteration.
+     *
+     */
+    preUpdate() {} // eslint-disable-line no-empty-function
+
+    /**
+     * Abstract method to subclass. Called once per update, after entities
+     * iteration.
+     *
+     */
+    postUpdate() {} // eslint-disable-line no-empty-function
+
+    /**
+     * Abstract method to subclass. Should return true if the entity is eligible
+     * to the system, false otherwise.
+     *
+     * @param {Entity} entity - The entity to test.
+     * @return {boolean} True if entity should be included.
+     */
+    test(entity) { // eslint-disable-line no-unused-vars
+        return false;
+    }
+
+    /**
+     * Abstract method to subclass. Called when an entity is added to the system.
+     *
+     * @param {Entity} entity - The added entity.
+     */
+    enter(entity) {} // eslint-disable-line no-empty-function,no-unused-vars
+
+    /**
+     * Abstract method to subclass. Called when an entity is removed from the system.
+     *
+     * @param {Entity} entity - The removed entity.
+     */
+    exit(entity) {} // eslint-disable-line no-empty-function,no-unused-vars
+
+    /**
+     * Abstract method to subclass. Called for each entity to update. This is
+     * the only method that should actual mutate entity state.
+     *
+     * @param {Entity} entity - The entity to update.
+     */
+    update(entity) {} // eslint-disable-line no-empty-function,no-unused-vars
 }
-// jshint unused:true
-
-export default System;
