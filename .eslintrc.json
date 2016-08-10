@@ -10,6 +10,7 @@
         "sourceType": "module"
     },
     "rules": {
-        "curly": [2, "multi-line"]
+        "curly": [2, "multi-line"],
+        "no-magic-numbers": 0
     }
 }

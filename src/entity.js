@@ -1,4 +1,4 @@
-import { DefaultUIDGenerator } from './uid';
+import uid from './uid';
 import { fastSplice } from './utils';
 
 /**
@@ -16,7 +16,7 @@ export default class Entity {
      *  it to generate a new id. If nothing is passed, the entity will use
      *  the default UIDGenerator.
      */
-    constructor(components = [], idOrGenerator = DefaultUIDGenerator) {
+    constructor(components = [], idOrGenerator = uid.DefaultUIDGenerator) {
         /**
          * Unique identifier of the entity.
          *

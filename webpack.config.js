@@ -1,12 +1,11 @@
+/* eslint-env node */
 'use strict';
 
 const path      = require('path');
-const fs        = require('fs');
 const webpack   = require('webpack');
-const pkg       = require('./package.json');
 
 module.exports = {
-    entry: path.join(__dirname, 'src', 'ecs.js'),
+    entry: path.join(__dirname, 'src', 'index.js'),
     output: {
         path: path.join(__dirname, 'dist'),
         library: 'ECS',

@@ -223,7 +223,7 @@ export default class ECS {
 
             // if the last system flagged some entities as dirty check that case
             if (this.entitiesSystemsDirty.length) {
-                this.cleanDirtyEntities();
+                this._cleanDirtyEntities();
             }
 
             system.updateAll(elapsed);
