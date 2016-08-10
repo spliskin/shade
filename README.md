@@ -1,5 +1,6 @@
-Entity Component System
-=======================
+# Entity Component System
+
+[![Build Status](https://travis-ci.org/Fae/ecs.svg?branch=master)](https://travis-ci.org/Fae/ecs)
 
 This library implements the entity-component-system pattern in EcmaScript6. This library
 was originally based on [yagl/ecs](https://github.com/yagl/ecs), but has been modified
