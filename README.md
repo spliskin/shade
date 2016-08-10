@@ -10,7 +10,7 @@ for performance and a focus on assemblages.
  * **ES6**: The library is written entirely in ES6.
  * **Flexible**: You can subclass the Entity or UIDGenerator classes to implement your
     own logic.
- * **Fast**: Intelligently batch your entities and systems so that the minimum amount
+ * **Fast**: Intelligently batches entities and systems so that the minimum amount
     of time is spent on pure iteration.
     - Since the eligibility to systems is computed only when the components list
         change, and in most cases the overhead of systems eligibility will be computed once
@@ -86,7 +86,7 @@ const entity = new Sprite('/img/something.png');
 
     canvas.clearRect(0, 0, canvas.width, canvas.height);
 
-    // iterate through entities and apply elligible systems
+    // iterates the systems and updates each entity within them
     ecs.update();
 })();
 ```
