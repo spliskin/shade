@@ -1,5 +1,9 @@
 'use strict';
 
+function returnTrue() {
+    return true;
+}
+
 describe('ECS', function () {
     it('should initialize', function () {
         var ecs = new ECS();
@@ -31,7 +35,7 @@ describe('ECS', function () {
         });
 
         it('should give the elapsed time to update methods', function (done) {
-            system.test = function () { return true }; // eslint-disable-line
+            system.test = returnTrue;
             system.update = function (entity, elapsed) {
                 expect(elapsed).to.be.a('number');
                 done();
@@ -56,7 +60,7 @@ describe('ECS', function () {
         });
 
         it('should call enter() when update', function () {
-            system.test = ()function () { return true; } // eslint-disable-line
+            system.test = returnTrue;
             system.enter = sinon.spy();
             ecs.addSystem(system);
             ecs.addEntity(entity);
@@ -67,7 +71,7 @@ describe('ECS', function () {
         });
 
         it('should call enter() when removing and re-adding a system', function () {
-            system.test = ()function () { return true; } // eslint-disable-line
+            system.test = returnTrue;
             system.enter = sinon.spy();
             ecs.addSystem(system);
             ecs.addEntity(entity);
@@ -95,7 +99,7 @@ describe('ECS', function () {
         });
 
         it('should call exit(entity) when removed', function () {
-            system.test = ()function () { return true; } // eslint-disable-line
+            system.test = returnTrue;
             system.exit = sinon.spy();
 
             ecs.addSystem(system);
@@ -109,7 +113,7 @@ describe('ECS', function () {
         });
 
         it('should call exit(entity) of all systems when removed', function () {
-            system.test = ()function () { return true; } // eslint-disable-line
+            system.test = returnTrue;
             system.exit = sinon.spy();
 
             ecs.addSystem(system);
@@ -137,7 +141,7 @@ describe('ECS', function () {
         });
 
         it('should call exit(entity) when removed', function () {
-            system1.test = ()function () { return true; } // eslint-disable-line
+            system1.test = returnTrue;
             system1.exit = sinon.spy();
 
             ecs.addSystem(system1);
@@ -151,9 +155,9 @@ describe('ECS', function () {
         });
 
         it('should call exit(entity) of all systems when removed', function () {
-            system2.test = ()function () { return true; } // eslint-disable-line
+            system2.test = returnTrue;
             system2.exit = sinon.spy();
-            system1.test = ()function () { return true; } // eslint-disable-line
+            system1.test = returnTrue;
             system1.exit = sinon.spy();
 
             ecs.addSystem(system1);
