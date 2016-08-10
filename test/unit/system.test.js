@@ -1,6 +1,6 @@
 'use strict';
 
-const System = ECS.System;
+var System = ECS.System;
 
 function getFakeEntity() {
     return {
@@ -11,14 +11,14 @@ function getFakeEntity() {
 
 describe('System', () => {
     it('should initialize', () => {
-        const system = new System();
+        var system = new System();
 
         expect(system).to.exist;
     });
 
     describe('addEntity()', () => {
-        let entity = null;
-        let system = null;
+        var entity = null;
+        var system = null;
 
         beforeEach(() => {
             entity = getFakeEntity();
@@ -47,8 +47,8 @@ describe('System', () => {
     });
 
     describe('removeEntity()', () => {
-        let entity = null;
-        let system = null;
+        var entity = null;
+        var system = null;
 
         beforeEach(() => {
             entity = getFakeEntity();
@@ -80,9 +80,9 @@ describe('System', () => {
 
     describe('updateAll()', () => {
         it('should call update() on each entity', () => {
-            const entity1 = getFakeEntity();
-            const entity2 = getFakeEntity();
-            const system = new System();
+            var entity1 = getFakeEntity();
+            var entity2 = getFakeEntity();
+            var system = new System();
 
             system.update = sinon.spy();
 
@@ -96,7 +96,7 @@ describe('System', () => {
         });
 
         it('should call preUpdate()', () => {
-            const system = new System();
+            var system = new System();
 
             system.preUpdate = sinon.spy();
 
@@ -106,7 +106,7 @@ describe('System', () => {
         });
 
         it('should call postUpdate()', () => {
-            const system = new System();
+            var system = new System();
 
             system.postUpdate = sinon.spy();
 

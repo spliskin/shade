@@ -2,7 +2,7 @@
 
 describe('ECS', () => {
     it('should initialize', () => {
-        const ecs = new ECS();
+        var ecs = new ECS();
 
         expect(ecs.entities).to.be.an('array');
         expect(ecs.systems).to.be.an('array');
@@ -10,8 +10,8 @@ describe('ECS', () => {
 
     describe('getEntityById()', () => {
         it('should retrieve an entity by id', () => {
-            const ecs = new ECS();
-            const entity = new ECS.Entity([], 123);
+            var ecs = new ECS();
+            var entity = new ECS.Entity([], 123);
 
             ecs.addEntity(entity);
 
@@ -20,9 +20,9 @@ describe('ECS', () => {
     });
 
     describe('update()', () => {
-        let ecs = null;
-        let entity = null;
-        let system = null;
+        var ecs = null;
+        var entity = null;
+        var system = null;
 
         beforeEach(() => {
             ecs = new ECS();
@@ -45,9 +45,9 @@ describe('ECS', () => {
     });
 
     describe('addSystem()', () => {
-        let ecs = null;
-        let entity = null;
-        let system = null;
+        var ecs = null;
+        var entity = null;
+        var system = null;
 
         beforeEach(() => {
             ecs = new ECS();
@@ -84,9 +84,9 @@ describe('ECS', () => {
     });
 
     describe('removeSystem()', () => {
-        let ecs = null;
-        let entity = null;
-        let system = null;
+        var ecs = null;
+        var entity = null;
+        var system = null;
 
         beforeEach(() => {
             ecs = new ECS();
@@ -124,10 +124,10 @@ describe('ECS', () => {
     });
 
     describe('removeEntity()', () => {
-        let ecs = null;
-        let entity = null;
-        let system1 = null;
-        let system2 = null;
+        var ecs = null;
+        var entity = null;
+        var system1 = null;
+        var system2 = null;
 
         beforeEach(() => {
             ecs = new ECS();
