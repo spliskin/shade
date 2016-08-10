@@ -1,0 +1,34 @@
+sudo: false
+
+language: node_js
+
+node_js:
+  - '6'
+
+branches:
+  only:
+    - master
+
+cache:
+  directories:
+    - node_modules
+
+before_script:
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+
+install:
+  - npm config set spin false
+  - npm config set loglevel http
+  - npm install
+
+script:
+  - npm test
+
+addons:
+  sauce_connect: true
+
+env:
+  global:
+    - SAUCE_USERNAME=faejs
+    - secure: "Zt8SsozLoD3Jss0r7bOb6a5/q1/oiJh/95NtPEjfHiMrxOsEgFrn8Vr8i7iVJnhOsc2UMzuC5j7zKBepkvTkle4uyCBMlcVl98C/aBoXKZ2rZ8VX+rVqncVSJIF7lMKd5gmgL5X3XJK73rSniqdZZy60b91qB7vtMjVAilG1aHk1DCbsGS8vtup12KUG4WpU0uX4K8s0mh7tlGdHqw8PMqjUs8LzP37V5auBBgbeH7w1mmm0Qv8KXep+5ErRzg9FjrBZnDl6lFrfXeKI44qgQWn2aO0x6iREaHM6ppnA7oeJB54EZiBs0C2JjMA0r37jFfXuy9Ofx4KfkxAnGQs9ohAECTinDu87Y3znY4YqmOmjn6Nn6ayYqvmwTC3CuzhUUtLS7nxSL65/F/7xWubj7dMSsfQFb83aYHhy3xue2NBRGOXsRdlMxz+nis0mO4XWcAAYlryu2/hoL8gkMna3vKWxcBLkpjaZjTbOy0zqpE2sodGSdXxv3AwVII/eHXE8sbNlcrGl4lPkWbLa3PUikPuBAETlwhM1fll0epK74qbwF3z7dn/ESqNBjiWCcBr0JaY1bYCENxnCR3uWIA7e8J5t1W6DWM719IzXDWLzBV4egxN4IgDwSEiCv9O/J2qdYjQ8YQSvVUC48hLjGYVTyTELxeIX8Jj3tkspy45fNSQ="
