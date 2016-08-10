@@ -9,35 +9,35 @@ function getFakeEntity() {
     };
 }
 
-describe('System', () => {
-    it('should initialize', () => {
+describe('System', function () {
+    it('should initialize', function () {
         var system = new System();
 
         expect(system).to.exist;
     });
 
-    describe('addEntity()', () => {
+    describe('addEntity()', function () {
         var entity = null;
         var system = null;
 
-        beforeEach(() => {
+        beforeEach(function () {
             entity = getFakeEntity();
             system = new System();
         });
 
-        it('should add an entity to the system', () => {
+        it('should add an entity to the system', function () {
             system.addEntity(entity);
 
             expect(system.entities.length).to.be.equal(1);
         });
 
-        it('should add the system to entity systems', () => {
+        it('should add the system to entity systems', function () {
             system.addEntity(entity);
 
             expect(entity._addSystem.calledWith(system)).to.be.equal(true);
         });
 
-        it('should call enter() on added entity', () => {
+        it('should call enter() on added entity', function () {
             system.enter = sinon.spy();
 
             system.addEntity(entity);
@@ -46,30 +46,30 @@ describe('System', () => {
         });
     });
 
-    describe('removeEntity()', () => {
+    describe('removeEntity()', function () {
         var entity = null;
         var system = null;
 
-        beforeEach(() => {
+        beforeEach(function () {
             entity = getFakeEntity();
             system = new System();
 
             system.addEntity(entity);
         });
 
-        it('should remove an entity from the system', () => {
+        it('should remove an entity from the system', function () {
             system.removeEntity(entity);
 
             expect(system.entities.length).to.be.equal(0);
         });
 
-        it('should remove the system from entity systems', () => {
+        it('should remove the system from entity systems', function () {
             system.removeEntity(entity);
 
             expect(entity._removeSystem.calledWith(system)).to.be.equal(true);
         });
 
-        it('should call exit() on removed entity', () => {
+        it('should call exit() on removed entity', function () {
             system.exit = sinon.spy();
 
             system.removeEntity(entity);
@@ -78,8 +78,8 @@ describe('System', () => {
         });
     });
 
-    describe('updateAll()', () => {
-        it('should call update() on each entity', () => {
+    describe('updateAll()', function () {
+        it('should call update() on each entity', function () {
             var entity1 = getFakeEntity();
             var entity2 = getFakeEntity();
             var system = new System();
@@ -95,7 +95,7 @@ describe('System', () => {
             expect(system.update.calledWith(entity2)).to.be.equal(true);
         });
 
-        it('should call preUpdate()', () => {
+        it('should call preUpdate()', function () {
             var system = new System();
 
             system.preUpdate = sinon.spy();
@@ -105,7 +105,7 @@ describe('System', () => {
             expect(system.preUpdate.called).to.be.equal(true);
         });
 
-        it('should call postUpdate()', () => {
+        it('should call postUpdate()', function () {
             var system = new System();
 
             system.postUpdate = sinon.spy();

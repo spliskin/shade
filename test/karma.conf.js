@@ -109,7 +109,7 @@ module.exports = function conf(config) {
             'SL_Chrome',
             'SL_Firefox',
             'SL_IE_11',
-            'SL_Safari_7',
+            // 'SL_Safari_7', // SauceLabs errors, unavailable?
             'SL_Safari_8',
             'SL_Safari_9',
             // 'SL_Edge', // Edge seems to be having issues on saucelabs right now

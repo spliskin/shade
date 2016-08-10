@@ -1,15 +1,15 @@
 'use strict';
 
-describe('ECS', () => {
-    it('should initialize', () => {
+describe('ECS', function () {
+    it('should initialize', function () {
         var ecs = new ECS();
 
         expect(ecs.entities).to.be.an('array');
         expect(ecs.systems).to.be.an('array');
     });
 
-    describe('getEntityById()', () => {
-        it('should retrieve an entity by id', () => {
+    describe('getEntityById()', function () {
+        it('should retrieve an entity by id', function () {
             var ecs = new ECS();
             var entity = new ECS.Entity([], 123);
 
@@ -19,12 +19,12 @@ describe('ECS', () => {
         });
     });
 
-    describe('update()', () => {
+    describe('update()', function () {
         var ecs = null;
         var entity = null;
         var system = null;
 
-        beforeEach(() => {
+        beforeEach(function () {
             ecs = new ECS();
             entity = new ECS.Entity();
             system = new ECS.System();
@@ -44,18 +44,18 @@ describe('ECS', () => {
         });
     });
 
-    describe('addSystem()', () => {
+    describe('addSystem()', function () {
         var ecs = null;
         var entity = null;
         var system = null;
 
-        beforeEach(() => {
+        beforeEach(function () {
             ecs = new ECS();
             entity = new ECS.Entity();
             system = new ECS.System();
         });
 
-        it('should call enter() when update', () => {
+        it('should call enter() when update', function () {
             system.test = () => true;
             system.enter = sinon.spy();
             ecs.addSystem(system);
@@ -66,7 +66,7 @@ describe('ECS', () => {
             expect(system.enter.calledWith(entity)).to.be.equal(true);
         });
 
-        it('should call enter() when removing and re-adding a system', () => {
+        it('should call enter() when removing and re-adding a system', function () {
             system.test = () => true;
             system.enter = sinon.spy();
             ecs.addSystem(system);
@@ -83,18 +83,18 @@ describe('ECS', () => {
         });
     });
 
-    describe('removeSystem()', () => {
+    describe('removeSystem()', function () {
         var ecs = null;
         var entity = null;
         var system = null;
 
-        beforeEach(() => {
+        beforeEach(function () {
             ecs = new ECS();
             entity = new ECS.Entity();
             system = new ECS.System();
         });
 
-        it('should call exit(entity) when removed', () => {
+        it('should call exit(entity) when removed', function () {
             system.test = () => true;
             system.exit = sinon.spy();
 
@@ -108,7 +108,7 @@ describe('ECS', () => {
             expect(system.exit.calledWith(entity)).to.be.equal(true);
         });
 
-        it('should call exit(entity) of all systems when removed', () => {
+        it('should call exit(entity) of all systems when removed', function () {
             system.test = () => true;
             system.exit = sinon.spy();
 
@@ -123,20 +123,20 @@ describe('ECS', () => {
         });
     });
 
-    describe('removeEntity()', () => {
+    describe('removeEntity()', function () {
         var ecs = null;
         var entity = null;
         var system1 = null;
         var system2 = null;
 
-        beforeEach(() => {
+        beforeEach(function () {
             ecs = new ECS();
             entity = new ECS.Entity();
             system1 = new ECS.System();
             system2 = new ECS.System();
         });
 
-        it('should call exit(entity) when removed', () => {
+        it('should call exit(entity) when removed', function () {
             system1.test = () => true;
             system1.exit = sinon.spy();
 
@@ -150,7 +150,7 @@ describe('ECS', () => {
             expect(system1.exit.calledWith(entity)).to.be.equal(true);
         });
 
-        it('should call exit(entity) of all systems when removed', () => {
+        it('should call exit(entity) of all systems when removed', function () {
             system2.test = () => true;
             system2.exit = sinon.spy();
             system1.test = () => true;

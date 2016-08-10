@@ -2,19 +2,19 @@
 
 var uid = ECS.uid;
 
-describe('uid', () => {
-    it('should have a default generator', () => {
+describe('uid', function () {
+    it('should have a default generator', function () {
         expect(uid.DefaultUIDGenerator).to.exist;
     });
 
-    it('should create a new generator', () => {
+    it('should create a new generator', function () {
         var gen = new uid.UIDGenerator();
 
         expect(gen.salt).to.be.a('number');
         expect(gen.uidCounter).to.be.equal(0);
     });
 
-    it('should return sequential unique ids', () => {
+    it('should return sequential unique ids', function () {
         var gen = new uid.UIDGenerator();
         var r1 = gen.next();
         var r2 = gen.next();
@@ -24,7 +24,7 @@ describe('uid', () => {
         expect(r1).to.be.not.equal('r2');
     });
 
-    it('should return different sequences with different salts', () => {
+    it('should return different sequences with different salts', function () {
         var gen1 = new uid.UIDGenerator(1);
         var gen2 = new uid.UIDGenerator(2);
 
@@ -42,22 +42,22 @@ describe('uid', () => {
         expect(r12).to.be.not.equal(r22);
     });
 
-    it('should return generator with incremented salts when calling nextGenerator()', () => {
+    it('should return generator with incremented salts when calling nextGenerator()', function () {
         var gen1 = uid.nextGenerator();
         var gen2 = uid.nextGenerator();
 
         expect(gen1.salt).to.be.a('number').and.to.be.not.equal(gen2.salt);
     });
 
-    it('should return incremented salts when calling nextSalt()', () => {
+    it('should return incremented salts when calling nextSalt()', function () {
         var salt1 = uid.nextSalt();
         var salt2 = uid.nextSalt();
 
         expect(salt1).to.be.a('number').and.to.be.not.equal(salt2);
     });
 
-    describe('isSaltedBy()', () => {
-        it('should return true when then id was salted with given salt', () => {
+    describe('isSaltedBy()', function () {
+        it('should return true when then id was salted with given salt', function () {
             var gen1 = new uid.UIDGenerator(1);
             var gen2 = new uid.UIDGenerator(2);
 
