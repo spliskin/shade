@@ -52,7 +52,7 @@ class Sprite extends ECS.Entity {
 }
 
 // render system draws objects with texture and position components
-class RenderSystem extends ECS.Sytem {
+class RenderSystem extends ECS.System {
     constructor(ctx) {
         this.ctx = ctx;
     }
