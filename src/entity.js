@@ -1,6 +1,10 @@
 import uid from './uid';
 import { fastSplice } from './utils';
 
+const _cachedApplicationRef = Symbol('_cachedApplicationRef');
+const _componentList = Symbol('_componentList');
+const _mixinRef = Symbol('_mixinRef');
+
 /**
  * An entity.
  *
@@ -55,43 +59,42 @@ export default class Entity {
     }
 
     /**
-     * Set the systems dirty flag so the ECS knows this entity needs
-     * to recompute eligibility at the beginning of next tick.
+     * Checks if an entity has all the components passed.
      *
+     * @example
+     *
+     * ```js
+     * entity.hasComponents(Component1, Component2, ...);
+     * ```
+     *
+     * @alias hasComponent
+     * @param {...Component} components - The component classes to compose into a parent class.
+     * @return {Component} A base-class component to extend from.
      */
-    setSystemsDirty() {
-        if (!this.systemsDirty && this.ecs) {
-            this.systemsDirty = true;
+    hasComponents(...components) {
+        // Check that each passed component exists in the component list.
+        // If it doesn't, then immediately return false.
+        for (let i = 0; i < components.length; ++i) {
+            const comp = components[i];
+            let o = Object.getPrototypeOf(this);
+            let found = false;
 
-            // notify to parent ECS that this entity needs to be tested next tick
-            this.ecs.entitiesSystemsDirty.push(this);
+            while (o) {
+                if (Object.prototype.hasOwnProperty.call(o, _mixinRef) && o[_mixinRef] === comp) {
+                    found = true;
+                    break;
+                }
+                o = Object.getPrototypeOf(o);
+            }
+
+            // if we traveled the chain and never found the component we
+            // were looking for, then its done.
+            if (!found) {
+                return false;
+            }
         }
-    }
 
-    /**
-     * Add a component to the entity.
-     *
-     * @param {IComponent} component - The component to add.
-     */
-    addComponent(component) {
-        this[component.name] = component.data();
-        this.setSystemsDirty();
-    }
-
-    /**
-     * Remove a component from the entity. For performance reasons, we
-     * set the component property to `null`. Therefore the property is
-     * still enumerable after a call to `removeComponent()`.
-     *
-     * @param {IComponent} component - The component or name to remove.
-     */
-    removeComponent(component) {
-        if (!this[component.name]) {
-            return;
-        }
-
-        this[component.name] = null;
-        this.setSystemsDirty();
+        return true;
     }
 
     /**
@@ -103,17 +106,6 @@ export default class Entity {
         while (this.systems.length) {
             this.systems[this.systems.length - 1].removeEntity(this);
         }
-    }
-
-    /**
-     * Set the parent ecs reference.
-     *
-     * @private
-     * @param {ECS} ecs - An ECS class instance.
-     */
-    _addToECS(ecs) {
-        this.ecs = ecs;
-        this.setSystemsDirty();
     }
 
     /**
@@ -140,3 +132,57 @@ export default class Entity {
         }
     }
 }
+
+Entity.prototype.hasComponent = Entity.prototype.hasComponents;
+
+/**
+ * Composes an entity with the given components.
+ *
+ * @example
+ *
+ * ```js
+ * class MyEntity extends ECS.Entity.with(Component1, Component2, ...) {
+ * }
+ * ```
+ *
+ * @static
+ * @param {...Component} components - The component classes to compose into a parent class.
+ * @return {Component} A base-class component to extend from.
+ */
+Entity.with = function entityWith(...components) {
+    const Clazz = components.reduce((base, comp) => {
+        // Get or create a symbol used to look up a previous application of mixin
+        // to the class. This symbol is unique per mixin definition, so a class will have N
+        // applicationRefs if it has had N mixins applied to it. A mixin will have
+        // exactly one _cachedApplicationRef used to store its applications.
+        let ref = comp[_cachedApplicationRef];
+
+        if (!ref) {
+            ref = comp[_cachedApplicationRef] = Symbol(comp.name);
+        }
+
+        // look up cached version of mixin/superclass
+        if (Object.prototype.hasOwnProperty.call(base, ref)) {
+            return base[ref];
+        }
+
+        // apply the component
+        const app = comp(base);
+
+        // cache it so we don't make it again
+        base[ref] = app;
+
+        // store the mixin we applied here.
+        app.prototype[_mixinRef] = comp;
+
+        return app;
+    }, this);
+
+    Clazz.prototype[_componentList] = components;
+
+    return Clazz;
+};
+
+// export some symbols
+Entity._cachedApplicationRef = _cachedApplicationRef;
+Entity._componentList = _componentList;

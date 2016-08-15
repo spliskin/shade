@@ -4,7 +4,12 @@
 
 This library implements the entity-component-system pattern in EcmaScript6. This library
 was originally based on [yagl/ecs](https://github.com/yagl/ecs), but has been modified
-for performance and a focus on assemblages.
+for performance and a focus on assemblages and mixins.
+
+In this ECS implementation components are not only dumb data containers, but are full
+mixins that can add functionality to an entity. The method of creating a prototype chain
+based on the mixins was derived from [this article][mixins]. Maybe this is more of an
+Entity-Mixin-System (EMS)...
 
 ## Features
 
@@ -25,31 +30,46 @@ Here is a "minimalist" example of what you can do with this library:
 ```js
 import ECS from '@fae/ecs';
 
-// components definitions
-const PositionComponent = {
-    // you can access the component data on each entity with `entity.<name>`
-    name: 'position',
-    data: () => {
-        return { x: 0, y: 0 };
-    },
-};
+// components definitions, a component is a "subclass factory".
+// That is, a function that takes a base object to extend and
+// returns a class that extends that base.
+const PositionComponent = (Base) => class extends Base {
+    constructor() {
+        // entities may have ctor args, so always pass
+        // along ctor args in a component.
+        super(...arguments);
 
-const TextureComponent = {
-    // you can access the component data on each entity with `entity.<name>`
-    name: 'texture',
-    data: () => {
-        return new Image();
-    },
-};
+        this._x = 0;
+        this._y = 0;
+    }
+
+    get x() { return this._x; }
+    set x(v) { this._x = Math.floor(v); }
+
+    get y() { return this._y; }
+    set y(v) { this._y = Math.floor(v); }
+}
+
+const TextureComponent = (Base) => class extends Base {
+    constructor() {
+        super(...arguments); // pass along ctor args
+
+        this.texture = new Image();
+    }
+}
 
 // you can extend ECS.Entity to create a component assemblage
-class Sprite extends ECS.Entity {
+class Sprite extends ECS.Entity.with(PositionComponent, TextureComponent) {
     constructor(imageUrl) {
-        super([PositionComponent, TextureComponent]);
+        super();
 
         this.texture.src = imageUrl;
     }
 }
+
+// you could even extend an assemblage to create a new one that has all the
+// components of the parnet:
+class SpecializedSprite extends Sprite.with(SpecialComponent) {}
 
 // render system draws objects with texture and position components
 class RenderSystem extends ECS.System {
@@ -59,16 +79,16 @@ class RenderSystem extends ECS.System {
 
     // only handle entities with a position and a texture
     test(entity) {
-        return !!(entity.texture && entity.position);
+        return entity.hasComponents(PositionComponent, TextureComponent);
     }
 
     // called by the ECS in your update loop
     update(entity) {
-        this.ctx.drawImage(entity.texture, entity.position.x, entity.position.y);
+        this.ctx.drawImage(entity.texture, entity.x, entity.y);
     }
 }
 
-// main application
+// main demo application
 const canvas = document.getElementById('renderer');
 const ctx = canvas.getContext('2d');
 const ecs = new ECS();
@@ -77,17 +97,20 @@ const ecs = new ECS();
 // to the ECS will take into account existing entities
 ecs.addSystem(new RenderingSystem(ctx));
 
-// then you can start to add entities
-// note: in this example the keyboard control ALL entities on screen
-const entity = new Sprite('/img/something.png');
+// and add entities, again you can do this at any time.
+ecs.addEntity(new Sprite('/img/something.png'));
 
-// finally start the game loop
+// start the game loop
 (function update() {
     requestAnimationFrame(update);
 
     canvas.clearRect(0, 0, canvas.width, canvas.height);
 
-    // iterates the systems and updates each entity within them
+    // iterates all the systems and calls update() for each entity
+    // within the system.
     ecs.update();
 })();
 ```
+
+<!-- URLs -->
+[mixins]: http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/

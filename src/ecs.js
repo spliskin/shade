@@ -74,7 +74,9 @@ export default class ECS {
      */
     addEntity(entity) {
         this.entities.push(entity);
-        entity._addToECS(this);
+
+        entity.ecs = this;
+        this.setEntitySystemsDirty(entity);
     }
 
     /**
@@ -99,6 +101,21 @@ export default class ECS {
         }
 
         return entityRemoved;
+    }
+
+    /**
+     * Set the systems dirty flag so the ECS knows this entity needs
+     * to recompute eligibility at the beginning of next tick.
+     *
+     * @param {Entity} entity - The entity to add.
+     */
+    setEntitySystemsDirty(entity) {
+        if (!entity.systemsDirty && entity.ecs === this) {
+            entity.systemsDirty = true;
+
+            // add to list of entites to update eligible systems for next tick.
+            this.entitiesSystemsDirty.push(entity);
+        }
     }
 
     /**
@@ -132,6 +149,7 @@ export default class ECS {
      */
     addSystem(system) {
         this.systems.push(system);
+        system.initialize();
 
         // iterate over all entities to eventually add system
         for (let i = 0; i < this.entities.length; ++i) {
@@ -155,6 +173,34 @@ export default class ECS {
             fastSplice(this.systems, index, 1);
             system.dispose();
         }
+    }
+
+    /**
+     * Update the ecs.
+     *
+     * @method update
+     */
+    update() {
+        const now = performance.now();
+        const elapsed = now - this.lastUpdate;
+
+        for (let i = 0; i < this.systems.length; ++i) {
+            const system = this.systems[i];
+
+            if (this.updateCounter % system.frequency > 0) {
+                continue;
+            }
+
+            // if the last system flagged some entities as dirty check that case
+            if (this.entitiesSystemsDirty.length) {
+                this._cleanDirtyEntities();
+            }
+
+            system.updateAll(elapsed);
+        }
+
+        this.updateCounter += 1;
+        this.lastUpdate = now;
     }
 
     /**
@@ -203,34 +249,6 @@ export default class ECS {
         }
 
         this.entitiesSystemsDirty.length = 0;
-    }
-
-    /**
-     * Update the ecs.
-     *
-     * @method update
-     */
-    update() {
-        const now = performance.now();
-        const elapsed = now - this.lastUpdate;
-
-        for (let i = 0; i < this.systems.length; ++i) {
-            const system = this.systems[i];
-
-            if (this.updateCounter % system.frequency > 0) {
-                break;
-            }
-
-            // if the last system flagged some entities as dirty check that case
-            if (this.entitiesSystemsDirty.length) {
-                this._cleanDirtyEntities();
-            }
-
-            system.updateAll(elapsed);
-        }
-
-        this.updateCounter += 1;
-        this.lastUpdate = now;
     }
 }
 

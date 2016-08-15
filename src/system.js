@@ -75,7 +75,15 @@ export default class System {
     }
 
     /**
-     * Dispose the system by exiting all the entities
+     * Initialize the system. This is called when the system is added
+     * to the ECS manager.
+     *
+     */
+    initialize() {} // eslint-disable-line no-empty-function
+
+    /**
+     * Dispose the system by exiting all the entities. This is called
+     * when the system is removed from the ECS manager.
      *
      */
     dispose() {

@@ -28,28 +28,4 @@ describe('Entity', function () {
 
         expect(entity.test).to.exist.and.to.be.deep.equal({ foo: 'bar' });
     });
-
-    describe('addComponent()', function () {
-        it('should add a component when passed', function () {
-            var entity = new Entity();
-
-            entity.addComponent(testComponent);
-
-            expect(entity.test).to.deep.equal({ foo: 'bar' });
-        });
-    });
-
-    describe('removeComponent()', function () {
-        it('should remove a component when passed', function () {
-            var entity = new Entity();
-
-            entity.addComponent(testComponent);
-
-            expect(entity.test).to.deep.equal({ foo: 'bar' });
-
-            entity.removeComponent(testComponent);
-
-            expect(entity.test).to.equal(null);
-        });
-    });
 });
