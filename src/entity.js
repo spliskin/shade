@@ -1,3 +1,4 @@
+import Symbol from 'core-js/es6/symbol';
 import uid from './uid';
 import { fastSplice } from './utils';
 
