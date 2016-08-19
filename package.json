@@ -39,7 +39,8 @@
     "start": "npm run build",
     "test": "npm run lint && npm run dev && npm run test-dev -- --single-run",
     "test-ci": "npm run test-dev -- --single-run",
-    "test-dev": "karma start test/karma.conf.js"
+    "test-dev": "karma start test/karma.conf.js",
+    "prepublish": "npm run build && npm run dev"
   },
   "devDependencies": {
     "@englercj/code-style": "^1.0.6",
