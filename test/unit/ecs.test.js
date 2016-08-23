@@ -15,7 +15,7 @@ describe('ECS', function () {
     describe('getEntityById()', function () {
         it('should retrieve an entity by id', function () {
             var ecs = new ECS();
-            var entity = new ECS.Entity([], 123);
+            var entity = new ECS.Entity(123);
 
             ecs.addEntity(entity);
 

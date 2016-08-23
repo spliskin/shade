@@ -2,13 +2,6 @@
 
 var Entity = ECS.Entity;
 
-var testComponent = {
-    name: 'test',
-    data: function () { // eslint-disable-line object-shorthand
-        return { foo: 'bar' };
-    },
-};
-
 describe('Entity', function () {
     it('should initialize', function () {
         var entity = new Entity();
@@ -21,11 +14,5 @@ describe('Entity', function () {
         var entity2 = new Entity();
 
         expect(entity1.id).to.be.not.equal(entity2.id);
-    });
-
-    it('should support default components', function () {
-        var entity = new Entity([testComponent]);
-
-        expect(entity.test).to.exist.and.to.be.deep.equal({ foo: 'bar' });
     });
 });

@@ -15,13 +15,12 @@ const _mixinRef = Symbol('_mixinRef');
 export default class Entity {
     /**
      *
-     * @param {Component[]} components - An array of initial components.
      * @param {number|UIDGenerator} idOrGenerator - The entity id if
      *  a Number is passed. If an UIDGenerator is passed, the entity will use
      *  it to generate a new id. If nothing is passed, the entity will use
      *  the default UIDGenerator.
      */
-    constructor(components = [], idOrGenerator = uid.DefaultUIDGenerator) {
+    constructor(idOrGenerator = uid.DefaultUIDGenerator) {
         /**
          * Unique identifier of the entity.
          *
@@ -37,26 +36,11 @@ export default class Entity {
         this.systems = [];
 
         /**
-         * Indicate a change in components (a component was removed or added)
-         * which require to re-compute entity eligibility to all systems.
-         *
-         * @member {boolean}
-         */
-        this.systemsDirty = false;
-
-        /**
          * A reference to parent ECS class.
          *
          * @member {ECS}
          */
         this.ecs = null;
-
-        // components initialisation
-        for (let i = 0; i < components.length; ++i) {
-            const component = components[i];
-
-            this[component.name] = component.data();
-        }
     }
 
     /**
