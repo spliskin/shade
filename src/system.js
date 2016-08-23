@@ -60,21 +60,6 @@ export default class System {
     }
 
     /**
-     * Apply update to each entity of this system.
-     *
-     * @param {number} elapsed - The time elapsed since last update call.
-     */
-    updateAll(elapsed) {
-        this.preUpdate();
-
-        for (let i = 0; i < this.entities.length; ++i) {
-            this.update(this.entities[i], elapsed);
-        }
-
-        this.postUpdate();
-    }
-
-    /**
      * Initialize the system. This is called when the system is added
      * to the ECS manager.
      *
@@ -92,20 +77,6 @@ export default class System {
             this.exit(this.entities[i]);
         }
     }
-
-    /**
-     * Abstract method to subclass. Called once per update, before entities
-     * iteration.
-     *
-     */
-    preUpdate() {} // eslint-disable-line no-empty-function
-
-    /**
-     * Abstract method to subclass. Called once per update, after entities
-     * iteration.
-     *
-     */
-    postUpdate() {} // eslint-disable-line no-empty-function
 
     /**
      * Abstract method to subclass. Should return true if the entity is eligible
@@ -137,6 +108,7 @@ export default class System {
      * the only method that should actual mutate entity state.
      *
      * @param {Entity} entity - The entity to update.
+     * @param {number} elapsed - The time elapsed since last update call.
      */
-    update(entity) {} // eslint-disable-line no-empty-function,no-unused-vars
+    update(entity, elapsed) {} // eslint-disable-line no-empty-function,no-unused-vars
 }

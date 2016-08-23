@@ -184,19 +184,24 @@ export default class ECS {
         const now = performance.now();
         const elapsed = now - this.lastUpdate;
 
-        for (let i = 0; i < this.systems.length; ++i) {
-            const system = this.systems[i];
+        // if the last system flagged some entities as dirty check that case
+        if (this.entitiesSystemsDirty.length) {
+            this._cleanDirtyEntities();
+        }
 
-            if (this.updateCounter % system.frequency > 0) {
-                continue;
+        // update each entity
+        for (let i = 0; i < this.entities.length; ++i) {
+            const entity = this.entities[i];
+
+            for (let j = 0; j < entity.systems.length; ++j) {
+                const system = entity.systems[j];
+
+                if (this.updateCounter % system.frequency > 0) {
+                    continue;
+                }
+
+                system.update(entity, elapsed);
             }
-
-            // if the last system flagged some entities as dirty check that case
-            if (this.entitiesSystemsDirty.length) {
-                this._cleanDirtyEntities();
-            }
-
-            system.updateAll(elapsed);
         }
 
         this.updateCounter += 1;
