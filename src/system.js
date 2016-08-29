@@ -28,6 +28,15 @@ export default class System {
          * @member {Entity[]}
          */
         this.entities = [];
+
+        /**
+         * Flag that tells the ECS to actually use this system. Since adding/removing
+         * a system can be expensive, this is a way to temporarily disable a system
+         * without taking the cost of recalculating the eligibility of all the entities.
+         *
+         * @member {boolean}
+         */
+        this.enable = true;
     }
 
     /**

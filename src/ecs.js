@@ -148,7 +148,7 @@ export default class ECS {
             for (let j = 0; j < entity.systems.length; ++j) {
                 const system = entity.systems[j];
 
-                if (this.updateCounter % system.frequency > 0) {
+                if (this.updateCounter % system.frequency > 0 || !system.enable) {
                     continue;
                 }
 
