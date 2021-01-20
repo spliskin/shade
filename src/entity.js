@@ -1,6 +1,4 @@
-import Symbol from 'core-js/es6/symbol';
-import uid from './uid';
-import { fastSplice } from './utils';
+const uid = require('./uid');
 
 const _cachedApplicationRef = Symbol('_cachedApplicationRef');
 const _componentList = Symbol('_componentList');
@@ -12,7 +10,7 @@ const _mixinRef = Symbol('_mixinRef');
  * @class
  * @alias ECS.Entity
  */
-export default class Entity {
+class Entity {
     /**
      *
      * @param {number|UIDGenerator} idOrGenerator - The entity id if
@@ -113,7 +111,7 @@ export default class Entity {
         const index = this.systems.indexOf(system);
 
         if (index !== -1) {
-            fastSplice(this.systems, index, 1);
+            this.systems.splice(index, 1);
         }
     }
 }
@@ -171,3 +169,5 @@ Entity.with = function entityWith(...components) {
 // export some symbols
 Entity._cachedApplicationRef = _cachedApplicationRef;
 Entity._componentList = _componentList;
+
+exports = module.exports = Entity;

@@ -132,4 +132,4 @@ const UID = {
     nextGenerator: () => new UIDGenerator(UID.nextSalt()),
 };
 
-export default UID;
+exports = module.exports = UID;

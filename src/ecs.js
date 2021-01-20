@@ -1,14 +1,13 @@
-import Entity from './entity';
-import System from './system';
-import performance from './performance';
-import uid from './uid';
-import { fastSplice } from './utils';
+const Entity = require('./entity');
+const System = require('./system');
+const performance = require('./performance');
+const uid = require('./uid');
 
 /**
  *
  * @class
  */
-export default class ECS {
+class ECS {
     /**
      *
      */
@@ -93,7 +92,7 @@ export default class ECS {
         if (index !== -1) {
             entity.dispose();
 
-            fastSplice(this.entities, index, 1);
+            this.entities.splice(index, 1);
         }
 
         return entity;
@@ -127,7 +126,7 @@ export default class ECS {
         const index = this.systems.indexOf(system);
 
         if (index !== -1) {
-            fastSplice(this.systems, index, 1);
+            this.systems.splice(index, 1);
             system.dispose();
         }
     }
@@ -187,3 +186,5 @@ ECS.uid = uid;
  * @name IComponent#data
  * @returns {*} The data object for this component.
  */
+
+ exports = module.exports = ECS;

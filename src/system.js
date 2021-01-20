@@ -1,5 +1,3 @@
-import { fastSplice } from './utils';
-
 /**
  * A system update all eligible entities at a given frequency.
  * This class is not meant to be used directly and should be sub-classed to
@@ -8,7 +6,7 @@ import { fastSplice } from './utils';
  * @class
  * @alias ECS.System
  */
-export default class System {
+class System {
     /**
      *
      * @param {number} frequency Frequency of execution.
@@ -62,7 +60,7 @@ export default class System {
 
         if (index !== -1) {
             entity._removeSystem(this);
-            fastSplice(this.entities, index, 1);
+            this.entities.splice(index, 1);
 
             this.exit(entity);
         }
@@ -121,3 +119,5 @@ export default class System {
      */
     update(entity, elapsed) {} // eslint-disable-line no-empty-function,no-unused-vars
 }
+
+exports = module.exports = System;

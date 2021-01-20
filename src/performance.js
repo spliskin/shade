@@ -11,4 +11,4 @@ if (!perf) {
     };
 }
 
-export default perf;
+exports = module.exports = perf;
