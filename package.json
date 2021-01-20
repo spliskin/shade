@@ -1,27 +1,13 @@
 {
-  "name": "@fae/ecs",
+  "name": "sprite-ecs",
   "version": "1.0.2",
   "description": "Entity Component System used in the Fae rendering engine",
-  "author": "Chad Engler <chad@pantherdev.com>",
+  "author": "",
   "license": "MIT",
-  "main": "dist/ecs.js",
+  "main": "src/ecs.js",
   "contributors": [
-    "Pierre Beaujeu"
-  ],
-  "homepage": "https://github.com/Fae/ecs#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Fae/ecs.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Fae/ecs/issues"
-  },
-  "keywords": [
-    "game",
-    "gamedev",
-    "ecs",
-    "entity component system",
-    "design pattern"
+    "Pierre Beaujeu",
+    "Chad Engler <chad@pantherdev.com>"
   ],
   "directories": {
     "lib": "./src"
@@ -29,40 +15,5 @@
   "files": [
     "src/",
     "dist/"
-  ],
-  "scripts": {
-    "clean": "rm -rf dist/",
-    "build": "webpack -p --config webpack.config.js --output-filename ecs.min.js --progress",
-    "dev": "webpack -d --config webpack.config.js --output-filename ecs.js --progress --colors",
-    "watch": "npm run dev -- --watch",
-    "lint": "eslint src/ test/",
-    "start": "npm run build",
-    "test": "npm run lint && npm run dev && npm run test-dev -- --single-run",
-    "test-ci": "npm run test-dev -- --single-run",
-    "test-dev": "karma start test/karma.conf.js",
-    "prepublish": "npm run build && npm run dev"
-  },
-  "devDependencies": {
-    "@englercj/code-style": "^1.0.6",
-    "babel-core": "^6.13.2",
-    "babel-loader": "^6.2.4",
-    "babel-preset-es2015": "^6.13.2",
-    "babel-preset-es2015-loose": "^7.0.0",
-    "chai": "^3.5.0",
-    "eslint": "^3.2.2",
-    "karma": "^1.1.2",
-    "karma-chrome-launcher": "^1.0.1",
-    "karma-firefox-launcher": "^1.0.0",
-    "karma-mocha": "^1.1.1",
-    "karma-mocha-reporter": "^2.1.0",
-    "karma-sauce-launcher": "^1.0.0",
-    "karma-sinon-chai": "^1.2.3",
-    "mocha": "^3.0.2",
-    "sinon": "^1.17.5",
-    "sinon-chai": "^2.8.0",
-    "webpack": "^1.13.1"
-  },
-  "dependencies": {
-    "core-js": "^2.4.1"
-  }
+  ]
 }
