@@ -1,4 +1,5 @@
 const FArray = require('./types/farray');
+const BitField = require('./types/bitfield');
 const uid = require('./uid');
 
 const _cachedApplicationRef = Symbol('_cachedApplicationRef');
