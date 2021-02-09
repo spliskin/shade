@@ -10,6 +10,15 @@ const { BitField, makeSig } = require('./componentsig');
  * @alias ECS.System
  */
 class System {
+    static sig = new BitField(8);
+    get sig() { return this.constructor.sig; }
+
+    static spec(...components) {
+        var sig = new BitField(32);
+        makeSig(sig, components);
+        return sig;
+    }
+
     /**
      *
      * @param {number} frequency Frequency of execution.
@@ -38,9 +47,6 @@ class System {
          * @member {boolean}
          */
         this.enable = true;
-
-        this.sig = new BitField(32);
-        makeSig(this.sig, this.wants());
     }
 
     /**
@@ -99,11 +105,7 @@ class System {
      * @return {boolean} True if entity should be included.
      */
     test(entity) { // eslint-disable-line no-unused-vars
-        return false;
-    }
-
-    wants() {
-        return [];
+        return this.sig.subset(entity.sig);
     }
 
     /**
