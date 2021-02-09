@@ -183,9 +183,7 @@ class ECS {
             if (this.updateCounter % system.frequency > 0 || !system.enable)
                 continue;
 
-            for(let j=0, e=system.entities.size; j < e; j++) {
-                system.update(system.entities[j], elapsed);
-            }
+            system.run(elapsed);
         }
 
         this.updateCounter += 1;
