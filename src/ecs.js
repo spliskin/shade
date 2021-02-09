@@ -1,7 +1,6 @@
 const FArray = require('./types/farray.js');
 const Entity = require('./entity.js');
 const System = require('./system.js');
-const performance = require('./performance.js');
 
 class ECS {
     static _components=[];
@@ -22,20 +21,8 @@ class ECS {
         this._sched = [];
         this._prioritySort = this._prioritySort.bind(this);
 
-        this.updated = 0;
-        this.lastUpdate = performance.now();
-
         this._pools = [];
-/*
-        this._updatetype = 0;
-        this._updatemethods = [
-            this._updateBySystem,
-            this._updateByEntity
-        ];
-
-        this.update = this._updatemethods[this._updatetype];
-*/
-        this.update = this._updateBySystem;
+        this.updated = 0;
     }
 
     getEntityById(id) {
@@ -50,15 +37,15 @@ class ECS {
         return this.eid++;
     }
 
-    createEntity(type) {
+    createEntity(type, ...args) {
         const id = type.tid;
         const pool = this._pools[id];
 
         var e = pool.pop();
         if (e) {
-            e.reset();
+            e.reset(...args);
         } else {
-            e = new type(this, this.nexteid());
+            e = new type(this, this.nexteid(), ...args);
         }
 
         return this._addEntity(e);
@@ -130,35 +117,8 @@ class ECS {
             system.dispose();
         }
     }
-/*
-    _updateByEntity() {
-        const now = performance.now();
-        const elapsed = now - this.lastUpdate;
 
-        // update each entity
-        for (let i=0, e=this.entities.size; i < e; ++i) {
-            const entity = this.entities[i];
-
-            // update each system for the entity
-            for (let j=0, m=entity.systems.size; j < m; ++j) {
-                const system = entity.systems[j];
-
-                if (this.updated % system.frequency > 0 || !system.enable) {
-                    continue;
-                }
-
-                system.update(entity, elapsed);
-            }
-        }
-
-        this.updated += 1;
-        this.lastUpdate = now;
-    }
-*/
-    _updateBySystem(elapsed) {
-        //const now = performance.now();
-        //const elapsed = now - this.lastUpdate;
-
+    update(elapsed) {
         for(var i=0, m=this._sched.length; i < m; i++) {
             const system = this._sched[i];
             if (this.updated % system.frequency > 0)
@@ -168,10 +128,9 @@ class ECS {
         }
 
         this.updated++;
-        //this.lastUpdate = now;
     }
 
-    initpools() {
+    _initpools() {
         const list = Entity.getArchetypes();
         for(var i=0, m=list.length; i < m; i++) {
             const type = list[i];
@@ -180,7 +139,7 @@ class ECS {
     }
 
     init() {
-        this.initpools();
+        this._initpools();
         this.reschedule();
     }
 
