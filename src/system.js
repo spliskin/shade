@@ -9,7 +9,7 @@ class System {
         return makeSig(new BitField(32), components);
     }
 
-    constructor(priority = -1, frequency=-1) {
+    constructor(priority = 0, frequency=1) {
         this.id = -1;
         this.priority = priority;
         this.frequency = frequency;
