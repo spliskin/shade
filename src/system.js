@@ -11,7 +11,9 @@ class System {
         return sig;
     }
 
-    constructor(frequency = 1) {
+    constructor(priority = -1, frequency=-1) {
+        this.id = -1;
+        this.priority = priority;
         this.frequency = frequency;
         this.entities = new FArray(16);
         this.enable = true;
