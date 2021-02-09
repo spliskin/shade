@@ -119,6 +119,12 @@ class System {
      * @param {number} elapsed - The time elapsed since last update call.
      */
     update(entity, elapsed) {} // eslint-disable-line no-empty-function,no-unused-vars
+
+    run(elapsed) {
+        for(let j=0, e=this.entities.size; j < e; j++) {
+            this.update(this.entities[j], elapsed);
+        }
+    }
 }
 
 exports = module.exports = System;
