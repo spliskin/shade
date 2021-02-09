@@ -1,14 +1,12 @@
-const FArray = require('./types/farray');
-const { BitField, makeSig } = require('./componentsig');
+const FArray = require('./farray.js');
+const { BitField, makeSig } = require('./componentsig.js');
 
 class System {
     static sig = new BitField(8);
     get sig() { return this.constructor.sig; }
 
     static spec(...components) {
-        var sig = new BitField(32);
-        makeSig(sig, components);
-        return sig;
+        return makeSig(new BitField(32), components);
     }
 
     constructor(priority = -1, frequency=-1) {
@@ -19,20 +17,19 @@ class System {
         this.enable = true;
     }
 
-    addEntity(entity) {
-        //entity._addSystem(this);
-        this.entities.push(entity);
+    test(entity) {
+        return this.sig.subset(entity.sig);
+    }
 
+    addEntity(entity) {
+        this.entities.push(entity);
         this.enter(entity);
     }
 
     removeEntity(entity) {
         const index = this.entities.indexOf(entity);
-
         if (index !== -1) {
-            //entity._removeSystem(this);
             this.entities.removeAt(index);
-
             this.exit(entity);
         }
     }
@@ -40,25 +37,14 @@ class System {
     initialize() {}
 
     dispose() {
-        for (let i = 0; i < this.entities.size; ++i) {
-            //this.entities[i]._removeSystem(this);
+        for (var i=0, m=this.entities.size; i < m; ++i) {
             this.exit(this.entities[i]);
         }
-    }
-
-    test(entity) {
-        return this.sig.subset(entity.sig);
     }
 
     enter(entity) {}
     exit(entity) {}
     update(elapsed) {}
-
-    //run(elapsed) {
-    //    for(var j=0, e=this.entities.size; j < e; j++) {
-    //        this.update(this.entities[j], elapsed);
-    //    }
-    //}
 }
 
 exports = module.exports = System;
