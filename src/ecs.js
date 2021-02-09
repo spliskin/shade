@@ -1,7 +1,8 @@
-const FArray = require('./types/farray');
-const Entity = require('./entity');
-const System = require('./system');
-const performance = require('./performance');
+const FArray = require('./types/farray.js');
+const Entity = require('./entity.js');
+const System = require('./system.js');
+const performance = require('./performance.js');
+
 
 class ECS {
     static cid = 0;
@@ -76,14 +77,10 @@ class ECS {
     }
 
     removeEntity(entity) {
-        //const index = this.entities.indexOf(entity);
+        // only remove the entiy if it's right
         if (this.entities[entity.id] === entity) {
-
-        // if the entity is not found do nothing
-        //if (index !== -1) {
             entity.dispose();
 
-            //this.entities.removeAt(index);
             this.entities[entity.id] = null;
             this.eopen.push(entity.id);
         }

@@ -1,4 +1,3 @@
-
 class FArray extends Array {
     constructor(capacity=4) {
         super(capacity);
@@ -15,7 +14,7 @@ class FArray extends Array {
     }
 
     push(item) {
-        if (this.size == this.length)
+        if (this.size >= this.length)
             this.resize(this.resizepolicy(this.length));
 
         var idx=this.size++;
