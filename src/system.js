@@ -20,7 +20,7 @@ class System {
     }
 
     addEntity(entity) {
-        entity._addSystem(this);
+        //entity._addSystem(this);
         this.entities.push(entity);
 
         this.enter(entity);
@@ -30,7 +30,7 @@ class System {
         const index = this.entities.indexOf(entity);
 
         if (index !== -1) {
-            entity._removeSystem(this);
+            //entity._removeSystem(this);
             this.entities.removeAt(index);
 
             this.exit(entity);
@@ -41,7 +41,7 @@ class System {
 
     dispose() {
         for (let i = 0; i < this.entities.size; ++i) {
-            this.entities[i]._removeSystem(this);
+            //this.entities[i]._removeSystem(this);
             this.exit(this.entities[i]);
         }
     }
