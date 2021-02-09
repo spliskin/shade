@@ -24,7 +24,7 @@ class ECS {
         this._sched = [];
         this._prioritySort = this._prioritySort.bind(this);
 
-        this.updateCounter = 0;
+        this.updated = 0;
         this.lastUpdate = performance.now();
 /*
         this._updatetype = 0;
@@ -144,7 +144,7 @@ class ECS {
             for (let j=0, m=entity.systems.size; j < m; ++j) {
                 const system = entity.systems[j];
 
-                if (this.updateCounter % system.frequency > 0 || !system.enable) {
+                if (this.updated % system.frequency > 0 || !system.enable) {
                     continue;
                 }
 
@@ -152,7 +152,7 @@ class ECS {
             }
         }
 
-        this.updateCounter += 1;
+        this.updated += 1;
         this.lastUpdate = now;
     }
 */
@@ -162,7 +162,7 @@ class ECS {
 /*
         for(var i=0, m=this.systems.size; i < m; i++) {
             //const system = this.systems[i];
-            //if (this.updateCounter % system.frequency > 0 || !system.enable)
+            //if (this.updated % system.frequency > 0 || !system.enable)
             //    continue;
 
             this.systems[i].update(elapsed);
@@ -171,7 +171,8 @@ class ECS {
         for(var i=0, m=this._sched.length; i < m; i++) {
             this._sched[i].update(elapsed);
         }
-        //this.updateCounter += 1;
+
+        this.updated++;
         //this.lastUpdate = now;
     }
 }
