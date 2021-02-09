@@ -1,5 +1,5 @@
-const FArray = require('./farray.js');
 const { BitField, makeSig } = require('./componentsig.js');
+const SparseSet = require('./types/sparseset.js');
 
 class System {
     static sig = new BitField(8);
@@ -13,7 +13,7 @@ class System {
         this.id = -1;
         this.priority = priority;
         this.frequency = frequency;
-        this.entities = new FArray(4);
+        this.entities = new SparseSet(4);
         this.enable = true;
     }
 
@@ -22,16 +22,13 @@ class System {
     }
 
     addEntity(entity) {
-        this.entities.push(entity);
+        this.entities.add(entity);
         this.enter(entity);
     }
 
     removeEntity(entity) {
-        const index = this.entities.indexOf(entity);
-        if (index !== -1) {
-            this.entities.removeAt(index);
-            this.exit(entity);
-        }
+        this.entities.delete(entity);
+        this.exit(entity);
     }
 
     initialize() {}
