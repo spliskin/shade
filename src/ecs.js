@@ -18,8 +18,11 @@ class ECS {
         this.entities = new FArray(4000);
         this.eopen = new FArray(4000);
         this.eid = 0;
+        this.sid = 0;
 
         this.systems = new FArray(8);
+        this._sched = [];
+        this._prioritySort = this._prioritySort.bind(this);
 
         this.updateCounter = 0;
         this.lastUpdate = performance.now();
@@ -43,6 +46,10 @@ class ECS {
         }
 
         return null;
+    }
+
+    nextsid() {
+        return this.sid++;
     }
 
     nexteid() {
@@ -82,7 +89,25 @@ class ECS {
         return entity;
     }
 
+    _prioritySort(a, b) {
+        return a.priority - b.priority;
+    }
+
+    reschedule() {
+        var counter=-1;
+        for(var i=0, m=this.systems.size; i < m; i++) {
+            const system = this.systems[i];
+            if (system.priority !== -1)
+                this._sched[++counter] = system;
+        }
+
+        this._sched.length = counter+1
+        if (this._sched.length > 1)
+            this._sched.sort(this._prioritySort);
+    }
+
     addSystem(system) {
+        system.id = this.nextsid();
         this.systems.push(system);
         system.initialize();
 
@@ -132,7 +157,7 @@ class ECS {
     _updateBySystem(elapsed) {
         //const now = performance.now();
         //const elapsed = now - this.lastUpdate;
-
+/*
         for(var i=0, m=this.systems.size; i < m; i++) {
             //const system = this.systems[i];
             //if (this.updateCounter % system.frequency > 0 || !system.enable)
@@ -140,7 +165,10 @@ class ECS {
 
             this.systems[i].update(elapsed);
         }
-
+*/
+        for(var i=0, m=this._sched.length; i < m; i++) {
+            this._sched[i].update(elapsed);
+        }
         //this.updateCounter += 1;
         //this.lastUpdate = now;
     }
