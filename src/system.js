@@ -1,4 +1,6 @@
 const FArray = require('./types/farray');
+const { BitField, makeSig } = require('./componentsig');
+
 /**
  * A system update all eligible entities at a given frequency.
  * This class is not meant to be used directly and should be sub-classed to
@@ -36,6 +38,9 @@ class System {
          * @member {boolean}
          */
         this.enable = true;
+
+        this.sig = new BitField(32);
+        makeSig(this.sig, this.wants());
     }
 
     /**
@@ -95,6 +100,10 @@ class System {
      */
     test(entity) { // eslint-disable-line no-unused-vars
         return false;
+    }
+
+    wants() {
+        return [];
     }
 
     /**
