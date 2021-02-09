@@ -158,17 +158,13 @@ class ECS {
     _updateBySystem(elapsed) {
         //const now = performance.now();
         //const elapsed = now - this.lastUpdate;
-/*
-        for(var i=0, m=this.systems.size; i < m; i++) {
-            //const system = this.systems[i];
-            //if (this.updated % system.frequency > 0 || !system.enable)
-            //    continue;
 
-            this.systems[i].update(elapsed);
-        }
-*/
         for(var i=0, m=this._sched.length; i < m; i++) {
-            this._sched[i].update(elapsed);
+            const system = this._sched[i];
+            if (this.updated % system.frequency > 0)
+                continue;
+
+            system.update(elapsed);
         }
 
         this.updated++;
