@@ -1,3 +1,4 @@
+const FArray = require('./types/farray');
 /**
  * A system update all eligible entities at a given frequency.
  * This class is not meant to be used directly and should be sub-classed to
@@ -25,7 +26,7 @@ class System {
          *
          * @member {Entity[]}
          */
-        this.entities = [];
+        this.entities = new FArray(16);
 
         /**
          * Flag that tells the ECS to actually use this system. Since adding/removing
@@ -60,7 +61,7 @@ class System {
 
         if (index !== -1) {
             entity._removeSystem(this);
-            this.entities.splice(index, 1);
+            this.entities.removeAt(index);
 
             this.exit(entity);
         }
@@ -79,7 +80,7 @@ class System {
      *
      */
     dispose() {
-        for (let i = 0; i < this.entities.length; ++i) {
+        for (let i = 0; i < this.entities.size; ++i) {
             this.entities[i]._removeSystem(this);
             this.exit(this.entities[i]);
         }

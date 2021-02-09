@@ -1,7 +1,7 @@
+const FArray = require('./types/farray');
 const Entity = require('./entity');
 const System = require('./system');
 const performance = require('./performance');
-const uid = require('./uid');
 
 /**
  *
@@ -17,14 +17,15 @@ class ECS {
          *
          * @member {Entity[]}
          */
-        this.entities = [];
+        this.entities = new FArray(4000);
+        this.eid = 0;
 
         /**
          * Store all systems of the ECS.
          *
          * @member {System[]}
          */
-        this.systems = [];
+        this.systems = new FArray(8);
 
         /**
          * Count how many updates have been done.
@@ -48,7 +49,7 @@ class ECS {
      * @return {Entity} The entity if found null otherwise
      */
     getEntityById(id) {
-        for (let i = 0; i < this.entities.length; ++i) {
+        for (let i = 0; i < this.entities.size; ++i) {
             const entity = this.entities[i];
 
             if (entity.id === id) {
@@ -59,18 +60,22 @@ class ECS {
         return null;
     }
 
+    nexteid() {
+        return this.eid++;
+    }
+
     /**
      * Add an entity to the ecs.
      *
      * @param {Entity} entity - The entity to add.
      */
     addEntity(entity) {
+        entity.ecs = this;
+        entity.id = this.nexteid();
         this.entities.push(entity);
 
-        entity.ecs = this;
-
         // iterate over all systems to setup valid systems
-        for (let i = 0; i < this.systems.length; ++i) {
+        for (let i = 0; i < this.systems.size; ++i) {
             const system = this.systems[i];
 
             if (system.test(entity)) {
@@ -92,7 +97,7 @@ class ECS {
         if (index !== -1) {
             entity.dispose();
 
-            this.entities.splice(index, 1);
+            this.entities.removeAt(index);
         }
 
         return entity;
@@ -108,7 +113,7 @@ class ECS {
         system.initialize();
 
         // iterate over all entities to eventually add system
-        for (let i = 0; i < this.entities.length; ++i) {
+        for (let i = 0; i < this.entities.size; ++i) {
             const entity = this.entities[i];
 
             if (system.test(entity)) {
@@ -126,7 +131,7 @@ class ECS {
         const index = this.systems.indexOf(system);
 
         if (index !== -1) {
-            this.systems.splice(index, 1);
+            this.systems.removeAt(index);
             system.dispose();
         }
     }
@@ -136,15 +141,16 @@ class ECS {
      *
      * @method update
      */
+/*
     update() {
         const now = performance.now();
         const elapsed = now - this.lastUpdate;
 
         // update each entity
-        for (let i = 0; i < this.entities.length; ++i) {
+        for (let i = 0; i < this.entities.size; ++i) {
             const entity = this.entities[i];
 
-            for (let j = 0; j < entity.systems.length; ++j) {
+            for (let j = 0, m=entity.systems.size; j < m; ++j) {
                 const system = entity.systems[j];
 
                 if (this.updateCounter % system.frequency > 0 || !system.enable) {
@@ -158,12 +164,47 @@ class ECS {
         this.updateCounter += 1;
         this.lastUpdate = now;
     }
+*/
+    update() {
+        const now = performance.now();
+        const elapsed = now - this.lastUpdate;
+
+        for(let i=0; i < this.systems.size; i++) {
+            const system = this.systems[i];
+            if (this.updateCounter % system.frequency > 0 || !system.enable) {
+                continue;
+            }
+
+            for(let j=0; j < system.entities.size; j++) {
+                const entity = system.entities[j];
+                system.update(entity, elapsed);
+            }
+        }
+
+/*
+        // update each entity
+        for (let i = 0; i < this.entities.size; ++i) {
+            const entity = this.entities[i];
+
+            for (let j = 0, m=entity.systems.size; j < m; ++j) {
+                const system = entity.systems[j];
+
+                if (this.updateCounter % system.frequency > 0 || !system.enable) {
+                    continue;
+                }
+
+                system.update(entity, elapsed);
+            }
+        }
+*/
+        this.updateCounter += 1;
+        this.lastUpdate = now;
+    }
 }
 
 // expose!
 ECS.Entity = Entity;
 ECS.System = System;
-ECS.uid = uid;
 
 /**
  * An interface describing components.
