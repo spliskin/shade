@@ -15,12 +15,12 @@ class ECS {
     }
 
     constructor() {
-        this.entities = new FArray(4000);
-        this.eopen = new FArray(4000);
+        this.entities = new FArray(4);
+        this.eopen = new FArray(4);
         this.eid = 0;
         this.sid = 0;
 
-        this.systems = new FArray(8);
+        this.systems = new FArray(4);
         this._sched = [];
         this._prioritySort = this._prioritySort.bind(this);
 
