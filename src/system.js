@@ -13,7 +13,7 @@ class System {
         this.id = -1;
         this.priority = priority;
         this.frequency = frequency;
-        this.entities = new FArray(16);
+        this.entities = new FArray(4);
         this.enable = true;
     }
 

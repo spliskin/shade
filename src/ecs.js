@@ -3,21 +3,18 @@ const Entity = require('./entity.js');
 const System = require('./system.js');
 const performance = require('./performance.js');
 
-
 class ECS {
-    static cid = 0;
-
-    static nextcid() {
-        return this.cid++;
-    }
-
-    static registerComponent(component) {
-        component.id = this.nextcid();
+    static _components=[];
+    static registerComponents(...list) {
+        for(var i=0, m=list.length; i < m; i++) {
+            const component = list[i];
+            component.id = this._components.length;
+            this._components.push(component);
+        }
     }
 
     constructor() {
         this.entities = new FArray(4);
-        this.eopen = new FArray(4);
         this.eid = 0;
         this.sid = 0;
 
@@ -27,6 +24,8 @@ class ECS {
 
         this.updated = 0;
         this.lastUpdate = performance.now();
+
+        this._pools = [];
 /*
         this._updatetype = 0;
         this._updatemethods = [
@@ -40,15 +39,7 @@ class ECS {
     }
 
     getEntityById(id) {
-        for (let i = 0; i < this.entities.size; ++i) {
-            const entity = this.entities[i];
-
-            if (entity.id === id) {
-                return entity;
-            }
-        }
-
-        return null;
+        return this.entities[id];
     }
 
     nextsid() {
@@ -56,16 +47,28 @@ class ECS {
     }
 
     nexteid() {
-        return this.eopen.shift() || this.eid++;
+        return this.eid++;
     }
 
-    addEntity(entity) {
-        entity.ecs = this;
-        entity.id = this.nexteid();
+    createEntity(type) {
+        const id = type.tid;
+        const pool = this._pools[id];
+
+        var e = pool.pop();
+        if (e) {
+            e.reset();
+        } else {
+            e = new type(this, this.nexteid());
+        }
+
+        return this._addEntity(e);
+    }
+
+    _addEntity(entity) {
         this.entities[entity.id] = entity;
 
         // iterate over all systems to setup valid systems
-        for (let i = 0; i < this.systems.size; ++i) {
+        for (var i=0, m=this.systems.size; i < m; ++i) {
             const system = this.systems[i];
 
             if (system.test(entity)) {
@@ -82,7 +85,7 @@ class ECS {
             entity.dispose();
 
             this.entities[entity.id] = null;
-            this.eopen.push(entity.id);
+            this._pools[entity.tid].push(entity);
         }
 
         return entity;
@@ -122,7 +125,6 @@ class ECS {
 
     removeSystem(system) {
         const index = this.systems.indexOf(system);
-
         if (index !== -1) {
             this.systems.removeAt(index);
             system.dispose();
@@ -171,6 +173,23 @@ class ECS {
 
         this.updated++;
         //this.lastUpdate = now;
+    }
+
+    initpools() {
+        const list = Entity.getArchetypes();
+        for(var i=0, m=list.length; i < m; i++) {
+            const type = list[i];
+            this._pools[type.tid] = new FArray;
+        }
+    }
+
+    init() {
+        this.initpools();
+        this.reschedule();
+    }
+
+    static registerArchetype(type) {
+        return Entity.registerArchetype(type);
     }
 }
 
