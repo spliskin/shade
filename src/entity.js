@@ -8,7 +8,7 @@ const _mixinRef = Symbol('_mixinRef');
 class Entity {
     constructor() {
         this.id = -1;
-        this.systems = new FArray(8);
+        //this.systems = new FArray(8);
         this.ecs = null;
     }
 
@@ -24,11 +24,12 @@ class Entity {
     }
 
     dispose() {
-        while (this.systems.size) {
-            this.systems[this.systems.size - 1].removeEntity(this);
-        }
+        //while (this.systems.size) {
+        //    this.systems[this.systems.size - 1].removeEntity(this);
+        //}
     }
 
+    /*
     _addSystem(system) {
         this.systems.push(system);
     }
@@ -39,6 +40,7 @@ class Entity {
             this.systems.removeAt(index);
         }
     }
+    */
 }
 
 Entity.prototype.hasComponent = Entity.prototype.hasComponents;

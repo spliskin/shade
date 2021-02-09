@@ -26,7 +26,7 @@ class ECS {
 
         this.updateCounter = 0;
         this.lastUpdate = performance.now();
-
+/*
         this._updatetype = 0;
         this._updatemethods = [
             this._updateBySystem,
@@ -34,6 +34,8 @@ class ECS {
         ];
 
         this.update = this._updatemethods[this._updatetype];
+*/
+        this.update = this._updateBySystem;
     }
 
     getEntityById(id) {
@@ -129,7 +131,7 @@ class ECS {
             system.dispose();
         }
     }
-
+/*
     _updateByEntity() {
         const now = performance.now();
         const elapsed = now - this.lastUpdate;
@@ -153,7 +155,7 @@ class ECS {
         this.updateCounter += 1;
         this.lastUpdate = now;
     }
-
+*/
     _updateBySystem(elapsed) {
         //const now = performance.now();
         //const elapsed = now - this.lastUpdate;
