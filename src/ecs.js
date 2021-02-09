@@ -174,47 +174,25 @@ class ECS {
         this.lastUpdate = now;
     }
 
-    _updateBySystem() {
-        const now = performance.now();
-        const elapsed = now - this.lastUpdate;
+    _updateBySystem(elapsed) {
+        //const now = performance.now();
+        //const elapsed = now - this.lastUpdate;
 
-        for(let i=0, m=this.systems.size; i < m; i++) {
-            const system = this.systems[i];
-            if (this.updateCounter % system.frequency > 0 || !system.enable)
-                continue;
+        for(var i=0, m=this.systems.size; i < m; i++) {
+            //const system = this.systems[i];
+            //if (this.updateCounter % system.frequency > 0 || !system.enable)
+            //    continue;
 
-            system.run(elapsed);
+            this.systems[i].update(elapsed);
         }
 
-        this.updateCounter += 1;
-        this.lastUpdate = now;
+        //this.updateCounter += 1;
+        //this.lastUpdate = now;
     }
 }
 
 // expose!
 ECS.Entity = Entity;
 ECS.System = System;
-
-/**
- * An interface describing components.
- *
- * @interface IComponent
- */
-
-/**
- * The name of the component
- *
- * @property
- * @name IComponent#name
- * @type {string}
- */
-
-/**
- * The factory function for the data of this component.
- *
- * @function
- * @name IComponent#data
- * @returns {*} The data object for this component.
- */
 
  exports = module.exports = ECS;

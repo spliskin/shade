@@ -118,13 +118,13 @@ class System {
      * @param {Entity} entity - The entity to update.
      * @param {number} elapsed - The time elapsed since last update call.
      */
-    update(entity, elapsed) {} // eslint-disable-line no-empty-function,no-unused-vars
+    update(elapsed) {} // eslint-disable-line no-empty-function,no-unused-vars
 
-    run(elapsed) {
-        for(let j=0, e=this.entities.size; j < e; j++) {
-            this.update(this.entities[j], elapsed);
-        }
-    }
+    //run(elapsed) {
+    //    for(var j=0, e=this.entities.size; j < e; j++) {
+    //        this.update(this.entities[j], elapsed);
+    //    }
+    //}
 }
 
 exports = module.exports = System;
