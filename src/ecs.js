@@ -40,6 +40,14 @@ class ECS {
          * @member
          */
         this.lastUpdate = performance.now();
+
+        this._updatetype = 0;
+        this._updatemethods = [
+            this._updateBySystem,
+            this._updateByEntity
+        ];
+
+        this.update = this._updatemethods[this._updatetype];
     }
 
     /**
@@ -141,16 +149,17 @@ class ECS {
      *
      * @method update
      */
-/*
-    update() {
+
+    _updateByEntity() {
         const now = performance.now();
         const elapsed = now - this.lastUpdate;
 
         // update each entity
-        for (let i = 0; i < this.entities.size; ++i) {
+        for (let i=0, e=this.entities.size; i < e; ++i) {
             const entity = this.entities[i];
 
-            for (let j = 0, m=entity.systems.size; j < m; ++j) {
+            // update each system for the entity
+            for (let j=0, m=entity.systems.size; j < m; ++j) {
                 const system = entity.systems[j];
 
                 if (this.updateCounter % system.frequency > 0 || !system.enable) {
@@ -164,39 +173,21 @@ class ECS {
         this.updateCounter += 1;
         this.lastUpdate = now;
     }
-*/
-    update() {
+
+    _updateBySystem() {
         const now = performance.now();
         const elapsed = now - this.lastUpdate;
 
-        for(let i=0; i < this.systems.size; i++) {
+        for(let i=0, m=this.systems.size; i < m; i++) {
             const system = this.systems[i];
-            if (this.updateCounter % system.frequency > 0 || !system.enable) {
+            if (this.updateCounter % system.frequency > 0 || !system.enable)
                 continue;
-            }
 
-            for(let j=0; j < system.entities.size; j++) {
-                const entity = system.entities[j];
-                system.update(entity, elapsed);
+            for(let j=0, e=system.entities.size; j < e; j++) {
+                system.update(system.entities[j], elapsed);
             }
         }
 
-/*
-        // update each entity
-        for (let i = 0; i < this.entities.size; ++i) {
-            const entity = this.entities[i];
-
-            for (let j = 0, m=entity.systems.size; j < m; ++j) {
-                const system = entity.systems[j];
-
-                if (this.updateCounter % system.frequency > 0 || !system.enable) {
-                    continue;
-                }
-
-                system.update(entity, elapsed);
-            }
-        }
-*/
         this.updateCounter += 1;
         this.lastUpdate = now;
     }
