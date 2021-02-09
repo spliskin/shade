@@ -8,6 +8,16 @@ const performance = require('./performance');
  * @class
  */
 class ECS {
+    static cid = 0;
+
+    static nextcid() {
+        return this.cid++;
+    }
+
+    static registerComponent(component) {
+        component.id = this.nextcid();
+    }
+
     /**
      *
      */
@@ -18,6 +28,7 @@ class ECS {
          * @member {Entity[]}
          */
         this.entities = new FArray(4000);
+        this.eopen = new FArray(4000);
         this.eid = 0;
 
         /**
@@ -50,6 +61,7 @@ class ECS {
         this.update = this._updatemethods[this._updatetype];
     }
 
+
     /**
      * Retrieve an entity by id.
      *
@@ -69,8 +81,9 @@ class ECS {
     }
 
     nexteid() {
-        return this.eid++;
+        return this.eopen.shift() || this.eid++;
     }
+
 
     /**
      * Add an entity to the ecs.
@@ -80,7 +93,7 @@ class ECS {
     addEntity(entity) {
         entity.ecs = this;
         entity.id = this.nexteid();
-        this.entities.push(entity);
+        this.entities[entity.id] = entity;
 
         // iterate over all systems to setup valid systems
         for (let i = 0; i < this.systems.size; ++i) {
@@ -90,6 +103,8 @@ class ECS {
                 system.addEntity(entity);
             }
         }
+
+        return entity;
     }
 
     /**
@@ -99,13 +114,16 @@ class ECS {
      * @return {Entity} the remove entity if any
      */
     removeEntity(entity) {
-        const index = this.entities.indexOf(entity);
+        //const index = this.entities.indexOf(entity);
+        if (this.entities[entity.id] === entity) {
 
         // if the entity is not found do nothing
-        if (index !== -1) {
+        //if (index !== -1) {
             entity.dispose();
 
-            this.entities.removeAt(index);
+            //this.entities.removeAt(index);
+            this.entities[entity.id] = null;
+            this.eopen.push(entity.id);
         }
 
         return entity;

@@ -1,6 +1,5 @@
 const FArray = require('./types/farray');
-const BitField = require('./types/bitfield');
-const uid = require('./uid');
+const { BitField, makeSig } = require('./componentsig');
 
 const _cachedApplicationRef = Symbol('_cachedApplicationRef');
 const _componentList = Symbol('_componentList');
@@ -59,27 +58,12 @@ class Entity {
     hasComponents(...components) {
         // Check that each passed component exists in the component list.
         // If it doesn't, then immediately return false.
-        for (let i = 0; i < components.length; ++i) {
-            const comp = components[i];
-            let o = Object.getPrototypeOf(this);
-            let found = false;
-
-            while (o) {
-                if (Object.prototype.hasOwnProperty.call(o, _mixinRef) && o[_mixinRef] === comp) {
-                    found = true;
-                    break;
-                }
-                o = Object.getPrototypeOf(o);
-            }
-
-            // if we traveled the chain and never found the component we
-            // were looking for, then its done.
-            if (!found) {
+        var i=-1;
+        while(++i < components.length) {
+            if (!this.sig.get(components[i].id))
                 return false;
-            }
         }
-
-        return true;
+        return components.length > 0;
     }
 
     /**
@@ -161,6 +145,11 @@ Entity.with = function entityWith(...components) {
 
         return app;
     }, this);
+
+    const sig = new BitField(32);
+    makeSig(sig, components);
+    Clazz.prototype.sig = sig;
+
 
     Clazz.prototype[_componentList] = components;
 
