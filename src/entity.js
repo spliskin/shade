@@ -4,26 +4,48 @@ const _componentList = Symbol('_componentList');
 const _mixinRef = Symbol('_mixinRef');
 
 class Entity {
-    constructor() {
-        this.id = -1;
-        this.ecs = null;
+    static archetypes=[];
+    static registerArchetype(type) {
+        const tid = this.archetypes.length;
+        type.sig = makeSig(new BitField(32), type.prototype[_componentList]);
+        type.tid = tid;
+        this.archetypes.push(type);
+        return type;
+    }
+
+    static getArchetypes() {
+        return this.archetypes;
+    }
+
+    get tid() { return this.constructor.tid; }
+    get sig() { return this.constructor.sig; }
+
+    constructor(ecs=null, id=-1) {
+        this.id = id;
+        this.ecs = ecs;
     }
 
     hasComponents(...components) {
         // checks the signature for every component in list, if one doesn't exist, immediately returns false
         var i=-1;
+        const sig = this.sig;
         while(++i < components.length) {
-            if (!this.sig.get(components[i].id))
+            if (!sig.get(components[i].id))
                 return false;
         }
         return components.length > 0;
     }
 
     dispose() {}
+
+    reset() {}
 }
 
+// export some symbols
+Entity._cachedApplicationRef = _cachedApplicationRef;
+Entity._componentList = _componentList;
+
 Entity.prototype.hasComponent = Entity.prototype.hasComponents;
-Entity.prototype.sig = new BitField(32);
 
 /**
  * Composes an entity with the given components.
@@ -68,16 +90,13 @@ Entity.with = function entityWith(...components) {
         return app;
     }, this);
 
-    Clazz.sig = makeSig(new BitField(32), components);
 
-
-    Clazz.prototype[_componentList] = components;
+    Clazz.prototype[_componentList] = Array.from(components);
+    Entity.registerArchetype(Clazz);
 
     return Clazz;
 };
 
-// export some symbols
-Entity._cachedApplicationRef = _cachedApplicationRef;
-Entity._componentList = _componentList;
 
+Entity.registerArchetype(Entity);
 exports = module.exports = Entity;
