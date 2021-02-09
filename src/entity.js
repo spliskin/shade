@@ -5,56 +5,13 @@ const _cachedApplicationRef = Symbol('_cachedApplicationRef');
 const _componentList = Symbol('_componentList');
 const _mixinRef = Symbol('_mixinRef');
 
-/**
- * An entity.
- *
- * @class
- * @alias ECS.Entity
- */
 class Entity {
-    /**
-     *
-     * @param {number|UIDGenerator} idOrGenerator - The entity id if
-     *  a Number is passed. If an UIDGenerator is passed, the entity will use
-     *  it to generate a new id. If nothing is passed, the entity will use
-     *  the default UIDGenerator.
-     */
     constructor() {
-        /**
-         * Unique identifier of the entity.
-         *
-         * @member {number}
-         */
         this.id = -1;
-
-        /**
-         * Systems applied to the entity.
-         *
-         * @number {System[]}
-         */
         this.systems = new FArray(8);
-
-        /**
-         * A reference to parent ECS class.
-         *
-         * @member {ECS}
-         */
         this.ecs = null;
     }
 
-    /**
-     * Checks if an entity has all the components passed.
-     *
-     * @example
-     *
-     * ```js
-     * entity.hasComponents(Component1, Component2, ...);
-     * ```
-     *
-     * @alias hasComponent
-     * @param {...Component} components - The component classes to compose into a parent class.
-     * @return {Component} A base-class component to extend from.
-     */
     hasComponents(...components) {
         // Check that each passed component exists in the component list.
         // If it doesn't, then immediately return false.
@@ -66,33 +23,16 @@ class Entity {
         return components.length > 0;
     }
 
-    /**
-     * Dispose the entity.
-     *
-     * @private
-     */
     dispose() {
         while (this.systems.size) {
             this.systems[this.systems.size - 1].removeEntity(this);
         }
     }
 
-    /**
-     * Add a system to the entity.
-     *
-     * @private
-     * @param {System} system - The system to add.
-     */
     _addSystem(system) {
         this.systems.push(system);
     }
 
-    /**
-     * Remove a system from the entity.
-     *
-     * @private
-     * @param {System} system - The system reference to remove.
-     */
     _removeSystem(system) {
         const index = this.systems.indexOf(system);
         if (index !== -1) {

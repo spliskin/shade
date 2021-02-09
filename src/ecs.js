@@ -3,10 +3,6 @@ const Entity = require('./entity');
 const System = require('./system');
 const performance = require('./performance');
 
-/**
- *
- * @class
- */
 class ECS {
     static cid = 0;
 
@@ -18,38 +14,14 @@ class ECS {
         component.id = this.nextcid();
     }
 
-    /**
-     *
-     */
     constructor() {
-        /**
-         * Store all entities of the ECS.
-         *
-         * @member {Entity[]}
-         */
         this.entities = new FArray(4000);
         this.eopen = new FArray(4000);
         this.eid = 0;
 
-        /**
-         * Store all systems of the ECS.
-         *
-         * @member {System[]}
-         */
         this.systems = new FArray(8);
 
-        /**
-         * Count how many updates have been done.
-         *
-         * @member {number}
-         */
         this.updateCounter = 0;
-
-        /**
-         * The last timestamp of an update call.
-         *
-         * @member
-         */
         this.lastUpdate = performance.now();
 
         this._updatetype = 0;
@@ -61,13 +33,6 @@ class ECS {
         this.update = this._updatemethods[this._updatetype];
     }
 
-
-    /**
-     * Retrieve an entity by id.
-     *
-     * @param {number} id - id of the entity to retrieve
-     * @return {Entity} The entity if found null otherwise
-     */
     getEntityById(id) {
         for (let i = 0; i < this.entities.size; ++i) {
             const entity = this.entities[i];
@@ -84,12 +49,6 @@ class ECS {
         return this.eopen.shift() || this.eid++;
     }
 
-
-    /**
-     * Add an entity to the ecs.
-     *
-     * @param {Entity} entity - The entity to add.
-     */
     addEntity(entity) {
         entity.ecs = this;
         entity.id = this.nexteid();
@@ -107,12 +66,6 @@ class ECS {
         return entity;
     }
 
-    /**
-     * Remove an entity from the ecs by reference.
-     *
-     * @param {Entity} entity - reference of the entity to remove
-     * @return {Entity} the remove entity if any
-     */
     removeEntity(entity) {
         //const index = this.entities.indexOf(entity);
         if (this.entities[entity.id] === entity) {
@@ -129,11 +82,6 @@ class ECS {
         return entity;
     }
 
-    /**
-     * Add a system to the ecs.
-     *
-     * @param {System} system - system to add
-     */
     addSystem(system) {
         this.systems.push(system);
         system.initialize();
@@ -148,11 +96,6 @@ class ECS {
         }
     }
 
-    /**
-     * Remove a system from the ecs.
-     *
-     * @param {System} system system reference
-     */
     removeSystem(system) {
         const index = this.systems.indexOf(system);
 
@@ -161,12 +104,6 @@ class ECS {
             system.dispose();
         }
     }
-
-    /**
-     * Update the ecs.
-     *
-     * @method update
-     */
 
     _updateByEntity() {
         const now = performance.now();
