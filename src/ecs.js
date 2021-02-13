@@ -62,13 +62,8 @@ class ECS {
     }
 
     removeEntity(entity) {
-        // only remove the entiy if it's right
-        if (this.entities[entity.id] === entity) {
-            entity.dispose();
-
-            this.entities[entity.id] = null;
-            //this._pools[entity.tid].push(entity);
-        }
+        this.entities[entity.id] = null;
+        //this._pools[entity.tid].push(entity);
 
         return entity;
     }
