@@ -19,7 +19,6 @@ class ECS {
 
         this.systems = new FArray(4);
         this._sched = [];
-        this._prioritySort = this._prioritySort.bind(this);
 
         this._pools = [];
         this.updated = 0;

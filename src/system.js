@@ -46,8 +46,8 @@ class System {
         }
     }
 
-    enter(entity) {}
-    exit(entity) {}
+    //enter(entity) {}
+    //exit(entity) {}
     update(elapsed) {}
 }
 
