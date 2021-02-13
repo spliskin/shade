@@ -15,6 +15,7 @@ class System {
         this.frequency = frequency;
         this.entities = new SparseSet(4);
         this.enable = true;
+        this.tick = 0;
     }
 
     register(entity) {

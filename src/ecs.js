@@ -110,10 +110,10 @@ class ECS {
     update(elapsed) {
         for(var i=0, m=this._sched.length; i < m; i++) {
             const system = this._sched[i];
-            if (this.updated % system.frequency > 0)
-                continue;
-
-            system.update(elapsed);
+            if (++system.tick >= system.frequency) {
+                system.tick = 0;
+                system.update(elapsed);
+            }
         }
 
         this.updated++;
