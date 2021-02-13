@@ -56,11 +56,7 @@ class ECS {
 
         // iterate over all systems to setup valid systems
         for (var i=0, m=this.systems.size; i < m; ++i) {
-            const system = this.systems[i];
-
-            if (system.test(entity)) {
-                system.addEntity(entity);
-            }
+            this.systems[i].register(entity);
         }
 
         return entity;

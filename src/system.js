@@ -17,18 +17,25 @@ class System {
         this.enable = true;
     }
 
+    register(entity) {
+        if (this.sig.subset(entity.sig)) { // this.test(entity)
+            //this.add(entity)
+            this.entities.add(entity);
+        }
+    }
+
     test(entity) {
         return this.sig.subset(entity.sig);
     }
 
     addEntity(entity) {
         this.entities.add(entity);
-        this.enter(entity);
+        //this.enter(entity);
     }
 
     removeEntity(entity) {
         this.entities.delete(entity);
-        this.exit(entity);
+        //this.exit(entity);
     }
 
     initialize() {}
