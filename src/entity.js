@@ -36,9 +36,7 @@ class Entity {
         return components.length > 0;
     }
 
-    dispose() {}
-
-    reset() {}
+    //reset() {}
 }
 
 // export some symbols

@@ -38,15 +38,14 @@ class ECS {
     }
 
     createEntity(type, ...args) {
-        const id = type.tid;
-        const pool = this._pools[id];
+        //const pool = this._pools[type.tid];
 
-        var e = pool.pop();
-        if (e) {
-            e.reset(...args);
-        } else {
-            e = new type(this, this.nexteid(), ...args);
-        }
+        //var e = pool.pop();
+        //if (e) {
+        //    e.reset(...args);
+        //} else {
+            var e = new type(this, this.nexteid(), ...args);
+        //}
 
         return this._addEntity(e);
     }
@@ -68,7 +67,7 @@ class ECS {
             entity.dispose();
 
             this.entities[entity.id] = null;
-            this._pools[entity.tid].push(entity);
+            //this._pools[entity.tid].push(entity);
         }
 
         return entity;
@@ -126,16 +125,16 @@ class ECS {
         this.updated++;
     }
 
-    _initpools() {
-        const list = Entity.getArchetypes();
-        for(var i=0, m=list.length; i < m; i++) {
-            const type = list[i];
-            this._pools[type.tid] = new FArray;
-        }
-    }
+    //_initpools() {
+    //    const list = Entity.getArchetypes();
+    //    for(var i=0, m=list.length; i < m; i++) {
+    //        const type = list[i];
+    //        this._pools[type.tid] = new FArray;
+    //    }
+    //}
 
     init() {
-        this._initpools();
+        //this._initpools();
         this.reschedule();
     }
 
