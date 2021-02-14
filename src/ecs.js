@@ -21,7 +21,7 @@ class ECS {
         this._sched = [];
 
         this._pools = [];
-        this.updated = 0;
+        //this.updated = 0;
     }
 
     getEntityById(id) {
@@ -116,7 +116,7 @@ class ECS {
             }
         }
 
-        this.updated++;
+        //this.updated++;
     }
 
     //_initpools() {
