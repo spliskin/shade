@@ -1,3 +1,4 @@
+const FArray = require('./types/farray');
 const uid = require('./uid');
 
 const _cachedApplicationRef = Symbol('_cachedApplicationRef');
@@ -18,20 +19,20 @@ class Entity {
      *  it to generate a new id. If nothing is passed, the entity will use
      *  the default UIDGenerator.
      */
-    constructor(idOrGenerator = uid.DefaultUIDGenerator) {
+    constructor() {
         /**
          * Unique identifier of the entity.
          *
          * @member {number}
          */
-        this.id = typeof idOrGenerator === 'number' ? idOrGenerator : idOrGenerator.next();
+        this.id = -1;
 
         /**
          * Systems applied to the entity.
          *
          * @number {System[]}
          */
-        this.systems = [];
+        this.systems = new FArray(8);
 
         /**
          * A reference to parent ECS class.
@@ -86,8 +87,8 @@ class Entity {
      * @private
      */
     dispose() {
-        while (this.systems.length) {
-            this.systems[this.systems.length - 1].removeEntity(this);
+        while (this.systems.size) {
+            this.systems[this.systems.size - 1].removeEntity(this);
         }
     }
 
@@ -109,9 +110,8 @@ class Entity {
      */
     _removeSystem(system) {
         const index = this.systems.indexOf(system);
-
         if (index !== -1) {
-            this.systems.splice(index, 1);
+            this.systems.removeAt(index);
         }
     }
 }
