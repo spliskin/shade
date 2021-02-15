@@ -1,6 +1,7 @@
 const FArray = require('./types/farray.js');
 const Entity = require('./entity.js');
 const System = require('./system.js');
+const { registerArchetype, getArchetypes } = require('./archetype.js');
 
 class ECS {
     static _components=[];
@@ -131,13 +132,10 @@ class ECS {
         //this._initpools();
         this.reschedule();
     }
-
-    static registerArchetype(type) {
-        return Entity.registerArchetype(type);
-    }
 }
 
 // expose!
+ECS.registerArchetype = registerArchetype;
 ECS.Entity = Entity;
 ECS.System = System;
 

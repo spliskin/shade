@@ -2,11 +2,11 @@ const { BitField, makeSig } = require('./componentsig.js');
 const SparseSet = require('./types/sparseset.js');
 
 class System {
-    static sig = new BitField(8);
+    static sig = new BitField;
     get sig() { return this.constructor.sig; }
 
     static spec(...components) {
-        return makeSig(new BitField(32), components);
+        return makeSig(new BitField, components);
     }
 
     constructor(priority=0, frequency=1) {
