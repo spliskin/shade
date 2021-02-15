@@ -19,10 +19,8 @@ class System {
     }
 
     register(entity) {
-        if (this.sig.subset(entity.sig)) { // this.test(entity)
-            //this.add(entity)
-            this.entities.add(entity);
-        }
+        if (this.test(entity))
+            this.addEntity(entity)
     }
 
     test(entity) {
@@ -31,12 +29,10 @@ class System {
 
     addEntity(entity) {
         this.entities.add(entity);
-        //this.enter(entity);
     }
 
     removeEntity(entity) {
         this.entities.delete(entity);
-        //this.exit(entity);
     }
 
     initialize() {}
@@ -47,8 +43,6 @@ class System {
         }
     }
 
-    //enter(entity) {}
-    //exit(entity) {}
     update(elapsed) {}
 }
 

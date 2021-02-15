@@ -1,15 +1,11 @@
-const {
-    registerArchetype,
-    //_componentList
-} = require('./archetype.js');
+const { registerArchetypes, BitField, makeSig, _componentsort } = require('./archetype.js');
 const _cachedApplicationRef = Symbol('_cachedApplicationRef');
 const _mixinRef = Symbol('_mixinRef');
 
 class Entity {
-    // export some symbols
-    //static _cachedApplicationRef = _cachedApplicationRef;
-    //static _componentList = _componentList;
+    static sig = new BitField;
 
+    // export some symbols
     get tid() { return this.constructor.tid; }
     get sig() { return this.constructor.sig; }
 
@@ -24,26 +20,22 @@ class Entity {
 
     hasComponents(...components) {
         // checks the signature for every component in list, if one doesn't exist, immediately returns false
-        var i=0;
-        const sig = this.sig;
-        while(i < components.length && sig.get(components[i++].id));
-        //{
-        //    if (!sig.get(components[i++].id))
-        //        return false;
-        //}
+        for(var i=0, m=components.length; i < m && this.sig.get(components[i].id); ++i);
         return components.length > 0 && i >= components.length;
     }
 
     static with(...components) {
-        let Clazz = null;
-        let base = Object(this);
+        var Clazz = null,
+            base = Object(this);
+
+        components.sort(_componentsort);
+
         for(var i=0, m=components.length; i < m; i++) {
             const comp = components[i];
-
             if (!comp[_cachedApplicationRef])
                 comp[_cachedApplicationRef] = Symbol(comp.name);
 
-            let ref = comp[_cachedApplicationRef];
+            const ref = comp[_cachedApplicationRef];
 
             // look up cached version of mixin/superclass
             if (Object.prototype.hasOwnProperty.call(base, ref)) {
@@ -64,8 +56,7 @@ class Entity {
         }
 
         Clazz = base;
-        //Clazz.prototype[_componentList] = components;
-        registerArchetype(Clazz, components);
+        Clazz.sig = makeSig(BitField.from(base.sig), components)
 
         return Clazz;
     }
@@ -73,6 +64,6 @@ class Entity {
     reset() {}
 }
 
-registerArchetype(Entity);
+registerArchetypes(Entity);
 
 exports = module.exports = Entity;

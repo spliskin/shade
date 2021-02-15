@@ -97,18 +97,17 @@ class SparseSet extends Array {
 
 	add(obj) {
         const val = obj.id;
-		if (!this.has(val)) {
-			if (val >= this._capacity)
-                this.reserve(this.resizepolicy(val));//this.resizepolicy(this._capacity));
-
-			this[this.size] = obj;
-			this._sparse[val] = this.size;
-			++this.size;
+        if (val >= this._capacity) {
+            this.reserve(this.resizepolicy(val));
+        } else if (this.has(val)) {
             return true;
-		}
-        return false;
-	}
+        }
 
+        this[this.size] = obj;
+        this._sparse[val] = this.size++;
+
+        return true;
+	}
 /*
     shift() {
         if (this.size() < 1)
@@ -134,7 +133,7 @@ class SparseSet extends Array {
             //var tmp = this[this._sparse[val]];
 
 			this[this._sparse[val]] = this[--this.size];
-			this._sparse[this[this.size]] = this._sparse[val];
+			this._sparse[this[this.size].id] = this._sparse[val];
             this[this.size] = this._sparse[val] = null; // clear the values (not needed really)
 
             // readd the value to the end outside the size, allows use as a pool

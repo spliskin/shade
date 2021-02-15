@@ -1,7 +1,7 @@
 const FArray = require('./types/farray.js');
 const Entity = require('./entity.js');
 const System = require('./system.js');
-const { registerArchetype, getArchetypes } = require('./archetype.js');
+const { registerArchetypes, getArchetypes } = require('./archetype.js');
 
 class ECS {
     static _components=[];
@@ -15,9 +15,6 @@ class ECS {
 
     constructor() {
         this.entities = new FArray(4);
-        this.eid = 0;
-        this.sid = 0;
-
         this.systems = new FArray(4);
         this._sched = [];
 
@@ -29,14 +26,6 @@ class ECS {
         return this.entities[id];
     }
 
-    nextsid() {
-        return this.sid++;
-    }
-
-    nexteid() {
-        return this.eid++;
-    }
-
     createEntity(type, ...args) {
         const pool = this._pools[type.tid];
 
@@ -44,14 +33,14 @@ class ECS {
         if (e) {
             e.reset(...args);
         } else {
-            var e = new type(this, this.nexteid(), ...args);
+            e = new type(...args, this, this.entities.size);
         }
 
         return this._addEntity(e);
     }
 
     _addEntity(entity) {
-        this.entities[entity.id] = entity;
+        this.entities.insert(entity.id, entity);
 
         // iterate over all systems to setup valid systems
         for (var i=0, m=this.systems.size; i < m; ++i) {
@@ -62,6 +51,11 @@ class ECS {
     }
 
     removeEntity(entity) {
+        // iterate over all systems to remove entity
+        for (var i=0, m=this.systems.size; i < m; ++i) {
+            this.systems[i].removeEntity(entity);
+        }
+
         this.entities[entity.id] = null;
         this._pools[entity.tid].push(entity);
 
@@ -86,26 +80,19 @@ class ECS {
     }
 
     addSystem(system) {
-        system.id = this.nextsid();
-        this.systems.push(system);
+        system.id = this.systems.size;
+        this.systems.insert(system.id, system);
         system.initialize();
 
         // iterate over all entities to eventually add system
         for (let i = 0; i < this.entities.size; ++i) {
-            const entity = this.entities[i];
-
-            if (system.test(entity)) {
-                system.addEntity(entity);
-            }
+            system.register(this.entities[i]);
         }
     }
 
     removeSystem(system) {
-        const index = this.systems.indexOf(system);
-        if (index !== -1) {
-            this.systems.removeAt(index);
-            system.dispose();
-        }
+        this.systems.removeAt(system.id);
+        system.dispose();
     }
 
     update(elapsed) {
@@ -135,7 +122,7 @@ class ECS {
 }
 
 // expose!
-ECS.registerArchetype = registerArchetype;
+ECS.registerArchetypes = registerArchetypes;
 ECS.Entity = Entity;
 ECS.System = System;
 
