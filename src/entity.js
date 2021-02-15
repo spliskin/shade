@@ -70,7 +70,7 @@ class Entity {
         return Clazz;
     }
 
-    //reset() {}
+    reset() {}
 }
 
 registerArchetype(Entity);
