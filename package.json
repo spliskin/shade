@@ -1,8 +1,8 @@
 {
-  "name": "sprite-ecs",
-  "version": "1.0.2",
-  "description": "Entity Component System used in the Fae rendering engine",
-  "author": "",
+  "name": "shade",
+  "version": "1.0.3",
+  "description": "Entity Component System, fork of Fae/ecs",
+  "author": "spliskin <snakepliskin@vivaldi.net>",
   "license": "MIT",
   "main": "src/ecs.js",
   "contributors": [
@@ -15,5 +15,9 @@
   "files": [
     "src/",
     "dist/"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/spliskin/shade.git"
+  }
 }
