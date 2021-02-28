@@ -29,10 +29,15 @@ class System {
 
     addEntity(entity) {
         this.entities.add(entity);
+        entity._addSystem(this);
+        this.enter(entity);
     }
 
     removeEntity(entity) {
-        this.entities.delete(entity);
+        if (this.entities.delete(entity)) {
+            entity._removeSystem(this);
+            this.exit(entity);
+        }
     }
 
     initialize() {}
@@ -43,6 +48,8 @@ class System {
         }
     }
 
+    enter(entity) {}
+    exit(entity) {}
     update(elapsed) {}
 }
 

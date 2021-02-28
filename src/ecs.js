@@ -51,11 +51,7 @@ class ECS {
     }
 
     removeEntity(entity) {
-        // iterate over all systems to remove entity
-        for (var i=0, m=this.systems.size; i < m; ++i) {
-            this.systems[i].removeEntity(entity);
-        }
-
+        entity.dispose();
         this.entities[entity.id] = null;
         this._pools[entity.tid].push(entity);
 

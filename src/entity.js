@@ -1,4 +1,5 @@
 const { registerArchetypes, BitField, makeSig, _componentsort } = require('./archetype.js');
+const SparseSet = require('./types/sparseset.js');
 const _cachedApplicationRef = Symbol('_cachedApplicationRef');
 const _mixinRef = Symbol('_mixinRef');
 
@@ -12,6 +13,7 @@ class Entity {
     constructor(ecs=null, id=-1) {
         this.id = id;
         this.ecs = ecs;
+        this.systems = new SparseSet;
     }
 
     hasComponent(component) {
@@ -22,6 +24,22 @@ class Entity {
         // checks the signature for every component in list, if one doesn't exist, immediately returns false
         for(var i=0, m=components.length; i < m && this.sig.get(components[i].id); ++i);
         return components.length > 0 && i >= components.length;
+    }
+
+    reset() {}
+
+    dispose() {
+        while (this.systems.size) {
+            this.systems[this.systems.size - 1].removeEntity(this);
+        }
+    }
+
+    _addSystem(system) {
+        this.systems.add(system);
+    }
+
+    _removeSystem(system) {
+        this.systems.delete(system);
     }
 
     static with(...components) {
@@ -61,7 +79,6 @@ class Entity {
         return Clazz;
     }
 
-    reset() {}
 }
 
 registerArchetypes(Entity);
